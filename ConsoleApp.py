@@ -7,13 +7,14 @@ import time
 import traceback
 
 import Configuration
-import GeneticAlgorithm
+# import GeneticAlgorithm
+import NsgaII
 import HtmlOutput
 
 
 def main(file_name):
     try:
-        print("GaSchedule Version 1.0.0 . Making a Class Schedule Using a Genetic Algorithm.\n")
+        print("GaSchedule Version 1.1.0 . Making a Class Schedule Using a Genetic Algorithm (NSGA-II).\n")
         print("Copyright (C) 2020 Miller Cy Chan.\n")
 
         start_time = int(round(time.time() * 1000))
@@ -22,9 +23,10 @@ def main(file_name):
         target_file = str(pathlib.Path().absolute()) + file_name
         configuration.parseFile(target_file)
 
-        ga = GeneticAlgorithm.GeneticAlgorithm(configuration)
-        ga.run()
-        html_result = HtmlOutput.HtmlOutput.getResult(ga.result)
+        # alg = GeneticAlgorithm.GeneticAlgorithm(configuration)
+        alg = NsgaII.NsgaII(configuration)
+        alg.run()
+        html_result = HtmlOutput.HtmlOutput.getResult(alg.result)
 
         temp_file_path = tempfile.gettempdir() + file_name.replace(".json", ".htm")
         writer = codecs.open(temp_file_path, "w", "utf-8")
