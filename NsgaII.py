@@ -38,9 +38,10 @@ class NsgaII:
         n = doublePopulationSize * [0]
         rank = doublePopulationSize * [0]
         front = [ set() ]
+        range1 = range(doublePopulationSize)
 
-        for p in range(doublePopulationSize):
-            for q in range(doublePopulationSize):
+        for p in range1:
+            for q in range1:
                 if totalChromosome[p].fitness > totalChromosome[q].fitness:
                     s[p].add(q)
                 elif totalChromosome[p].fitness < totalChromosome[q].fitness:
@@ -79,13 +80,14 @@ class NsgaII:
 
     def selection(self, front, totalChromosome):
         populationSize = self._populationSize
+        calculateCrowdingDistance = self.calculateCrowdingDistance
         N = 0
         newPop = []
         while N < populationSize:
             for row in front:
                 N += len(row)
                 if N > populationSize:
-                    sortedCdf = self.calculateCrowdingDistance(row, totalChromosome)
+                    sortedCdf = calculateCrowdingDistance(row, totalChromosome)
                     for j in sortedCdf:
                         if len(newPop) >= populationSize:
                             break
@@ -93,11 +95,7 @@ class NsgaII:
                     break
                 newPop.extend(row)
     
-        population = []
-        for n in newPop:
-            population.append(totalChromosome[n])
-    
-        return population
+        return [totalChromosome[n] for n in newPop]
 
     # initialize new population with chromosomes randomly built using prototype
     def initialize(self, population):
@@ -113,6 +111,8 @@ class NsgaII:
         numberOfCrossoverPoints = self._numberOfCrossoverPoints
         crossoverProbability = self._crossoverProbability
         mutationProbability = self._mutationProbability
+        nonDominatedSorting = self.nonDominatedSorting
+        selection = self.selection
         populationSize = self._populationSize
         population = populationSize * [None]
 
@@ -166,12 +166,12 @@ class NsgaII:
             totalChromosome = population + offspring
 
             # non-dominated sorting
-            front = self.nonDominatedSorting(totalChromosome)
+            front = nonDominatedSorting(totalChromosome)
             if len(front) == 0:
                 break
 
             # selection
-            population = self.selection(front, totalChromosome)
+            population = selection(front, totalChromosome)
             self._populationSize = populationSize = len(population)
 
             # comparison
@@ -179,10 +179,10 @@ class NsgaII:
                 self._chromosomes = population
             else:
                 totalChromosome = population + self._chromosomes
-                newBestFront = self.nonDominatedSorting(totalChromosome)
+                newBestFront = nonDominatedSorting(totalChromosome)
                 if len(newBestFront) == 0:
                     break
-                self._chromosomes = self.selection(newBestFront, totalChromosome)
+                self._chromosomes = selection(newBestFront, totalChromosome)
                 lastBestFit = best.fitness
 
             currentGeneration += 1
