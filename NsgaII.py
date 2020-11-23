@@ -70,10 +70,10 @@ class NsgaII:
         distance = {m: 0.0 for m in front}
         obj = {m: totalChromosome[m].fitness for m in front}
         sorted_keys = sorted(obj, key=obj.get)
-        distance[sorted_keys[0]] = distance[sorted_keys[len(front) - 1]] = 99999999
+        distance[sorted_keys[0]] = distance[sorted_keys[len(front) - 1]] = sys.float_info.max
         values_length = len(set(obj.values()))
-        for i in range(1, len(front) - 1):
-            if values_length > 1:
+        if values_length > 1:
+            for i in range(1, len(front) - 1):
                 distance[sorted_keys[i]] += (obj[sorted_keys[i + 1]] - obj[sorted_keys[i - 1]]) / (obj[sorted_keys[len(front) - 1]] - obj[sorted_keys[0]])
 
         return reversed(sorted(distance, key=distance.get))
