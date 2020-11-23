@@ -16,7 +16,7 @@ If you are using Python, you would call GASchedule as follows:
     target_file = str(pathlib.Path().absolute()) + file_name
     configuration.parseFile(target_file)
 
-    ga = GeneticAlgorithm.GeneticAlgorithm(configuration)
-    ga.run()
-    html_result = HtmlOutput.HtmlOutput.getResult(ga.result)
+    alg = NsgaII.NsgaII(configuration)
+    alg.run()
+    html_result = HtmlOutput.HtmlOutput.getResult(alg.result)
 ```
