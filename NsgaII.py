@@ -15,8 +15,7 @@ class NsgaII:
 
         # Population of chromosomes
         self._chromosomes = []
-        self._populationSize = numberOfChromosomes
-        self._rank = []        
+        self._populationSize = numberOfChromosomes    
 
     # Initializes genetic algorithm
     def __init__(self, configuration, numberOfCrossoverPoints=2, mutationSize=2, crossoverProbability=80,
@@ -64,7 +63,6 @@ class NsgaII:
             i += 1
             front.append(Q)
         
-        self._rank = rank
         return front[0: len(front) - 1]
 
     # calculate crowding distance function
@@ -100,6 +98,27 @@ class NsgaII:
     
         return [totalChromosome[n] for n in newPop]
 
+    def replacement(self, population):
+        populationSize = self._populationSize
+        numberOfCrossoverPoints = self._numberOfCrossoverPoints
+        crossoverProbability = self._crossoverProbability
+        offspring = []
+        # generate a random sequence to select the parent chromosome to crossover
+        S = list(range(populationSize))
+        random.shuffle(S)
+
+        halfPopulationSize = populationSize // 2
+        for m in range(halfPopulationSize):
+            parent0 = population[S[2 * m]]
+            parent1 = population[S[2 * m + 1]]
+            child0 = parent0.crossover(parent1, numberOfCrossoverPoints, crossoverProbability)
+            child1 = parent1.crossover(parent0, numberOfCrossoverPoints, crossoverProbability)
+
+            # append child chromosome to offspring list
+            offspring.extend((child0, child1))
+            
+        return offspring
+                
     # initialize new population with chromosomes randomly built using prototype
     def initialize(self, population):
         prototype = self._prototype
@@ -110,9 +129,7 @@ class NsgaII:
 
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
-        mutationSize = self._mutationSize
-        numberOfCrossoverPoints = self._numberOfCrossoverPoints
-        crossoverProbability = self._crossoverProbability
+        mutationSize = self._mutationSize        
         mutationProbability = self._mutationProbability
         nonDominatedSorting = self.nonDominatedSorting
         selection = self.selection
@@ -147,20 +164,7 @@ class NsgaII:
                     self._crossoverProbability += 1
 
             # crossover
-            offspring = []
-            # generate a random sequence to select the parent chromosome to crossover
-            S = list(range(populationSize))
-            random.shuffle(S)
-
-            halfPopulationSize = populationSize // 2
-            for m in range(halfPopulationSize):
-                parent0 = population[S[2 * m]]
-                parent1 = population[S[2 * m + 1]]
-                child0 = parent0.crossover(parent1, numberOfCrossoverPoints, crossoverProbability)
-                child1 = parent1.crossover(parent0, numberOfCrossoverPoints, crossoverProbability)
-
-                # append child chromosome to offspring list
-                offspring.extend((child0, child1))
+            offspring = self.replacement(population)
 
             # mutation
             for child in offspring:
