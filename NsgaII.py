@@ -76,7 +76,7 @@ class NsgaII:
             for i in range(1, len(front) - 1):
                 distance[sorted_keys[i]] += (obj[sorted_keys[i + 1]] - obj[sorted_keys[i - 1]]) / (obj[sorted_keys[len(front) - 1]] - obj[sorted_keys[0]])
 
-        return reversed(sorted(distance, key=distance.get))
+        return distance
 
     def selection(self, front, totalChromosome):
         populationSize = self._populationSize
@@ -87,7 +87,8 @@ class NsgaII:
             for row in front:
                 N += len(row)
                 if N > populationSize:
-                    sortedCdf = calculateCrowdingDistance(row, totalChromosome)
+                    distance = calculateCrowdingDistance(row, totalChromosome)
+                    sortedCdf = reversed(sorted(distance, key=distance.get))
                     for j in sortedCdf:
                         if len(newPop) >= populationSize:
                             break

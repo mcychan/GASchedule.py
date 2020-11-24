@@ -8,13 +8,14 @@ import traceback
 
 import Configuration
 # import GeneticAlgorithm
-import NsgaII
+# import NsgaII
+import Ngra
 import HtmlOutput
 
 
 def main(file_name):
     try:
-        print("GaSchedule Version 1.1.0 . Making a Class Schedule Using a Genetic Algorithm (NSGA-II).\n")
+        print("GaSchedule Version 1.1.0 . Making a Class Schedule Using a Genetic Algorithm (NRGA).\n")
         print("Copyright (C) 2020 Miller Cy Chan.\n")
 
         start_time = int(round(time.time() * 1000))
@@ -24,7 +25,7 @@ def main(file_name):
         configuration.parseFile(target_file)
 
         # alg = GeneticAlgorithm.GeneticAlgorithm(configuration)
-        alg = NsgaII.NsgaII(configuration)
+        alg = Ngra.Ngra(configuration)
         alg.run()
         html_result = HtmlOutput.HtmlOutput.getResult(alg.result)
 
