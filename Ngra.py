@@ -14,7 +14,7 @@ class Ngra(NsgaII.NsgaII):
         N = self._populationSize
         divisor = N * (N + 1)
         distance = {m: 0.0 for m in front}
-        obj = {m: 2 * m / divisor for m in front}
+        obj = {m: 2 * self._rank[m] / divisor for m in front}
         sorted_keys = sorted(obj, key=obj.get)
         distance[sorted_keys[0]] = distance[sorted_keys[len(front) - 1]] = sys.float_info.max
         values_length = len(set(obj.values()))

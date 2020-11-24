@@ -15,7 +15,8 @@ class NsgaII:
 
         # Population of chromosomes
         self._chromosomes = []
-        self._populationSize = numberOfChromosomes        
+        self._populationSize = numberOfChromosomes
+        self._rank = []        
 
     # Initializes genetic algorithm
     def __init__(self, configuration, numberOfCrossoverPoints=2, mutationSize=2, crossoverProbability=80,
@@ -62,7 +63,8 @@ class NsgaII:
                         Q.add(q)
             i += 1
             front.append(Q)
-                
+        
+        self._rank = rank
         return front[0: len(front) - 1]
 
     # calculate crowding distance function
