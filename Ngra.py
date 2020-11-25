@@ -46,7 +46,7 @@ class Ngra(NsgaII.NsgaII):
                 parent[parentIndex % 2] = population[sortedIndices[i]]
                 parentIndex += 1
                 
-            if parentIndex > 0 and parentIndex % 2 == 0:
+            if parentIndex % 2 == 0:
                 child0 = parent[0].crossover(parent[1], numberOfCrossoverPoints, crossoverProbability)
                 child1 = parent[1].crossover(parent[0], numberOfCrossoverPoints, crossoverProbability)
                 # append child chromosome to offspring list
