@@ -1,6 +1,7 @@
 import Schedule
 import random
 import sys
+import time
 
 
 # NSGA II

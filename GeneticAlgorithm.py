@@ -1,6 +1,7 @@
 import Schedule
 import random
 from random import randrange
+import time
 
 
 # Genetic algorithm
