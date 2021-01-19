@@ -194,3 +194,6 @@ class NsgaII:
 
             currentGeneration += 1
             
+    def __str__(self):
+        return "NSGA II"             
+            

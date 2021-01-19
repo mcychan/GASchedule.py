@@ -59,4 +59,7 @@ class Ngra(NsgaII.NsgaII):
         offspring = self.replacement(population)
         population.clear()
         population.extend(offspring)
-            
+        
+    def __str__(self):
+        return "Non-dominated Ranking Genetic Algorithm (NRGA)"
+             

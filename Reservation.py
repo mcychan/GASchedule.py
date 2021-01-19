@@ -9,6 +9,15 @@ class Reservation:
         self.Room = room
         self._index = self.Day * self.Nr * Constant.Constant.DAY_HOURS + self.Room * Constant.Constant.DAY_HOURS + self.Time
 
-    @property
-    def index(self) -> int:
+    def __hash__(self) -> int:
         return self._index
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return hash(self) == hash(other)
+        else:
+            return False
+            
+    def __ne__(self, other):
+        return not self.__eq__(other)
+        

@@ -180,3 +180,6 @@ class GeneticAlgorithm:
             lastBestFit = best.fitness
             currentGeneration += 1
             
+    def __str__(self):
+        return "Genetic Algorithm"
+        

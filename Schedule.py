@@ -23,6 +23,9 @@ class Schedule:
 
         # Flags of class requirements satisfaction
         self._criteria = (self._configuration.numberOfCourseClasses * Constant.Constant.DAYS_NUM) * [False]
+        
+        self._diversity = 0.0
+        self._rank = 0
 
     def copy(self, c, setup_only):
         if not setup_only:
@@ -59,7 +62,7 @@ class Schedule:
             room = randrange(32768) % nr
             time = randrange(32768) % (DAY_HOURS - dur)
             reservation = Reservation.Reservation(nr, day, time, room)
-            reservation_index = reservation.index
+            reservation_index = hash(reservation)
 
             # fill time-space slots, for each hour of class
             for slot in new_chromosome_slots[reservation_index: reservation_index + dur]:
@@ -73,7 +76,7 @@ class Schedule:
 
     @functools.lru_cache(maxsize=256)
     # Performs crossover operation using to chromosomes and returns pointer to offspring
-    def crossover(self, parent2, numberOfCrossoverPoints, crossoverProbability):
+    def crossover(self, parent, numberOfCrossoverPoints, crossoverProbability):
         # check probability of crossover operation
         if randrange(32768) % 100 > crossoverProbability:
             # no crossover, just copy first parent
@@ -101,14 +104,14 @@ class Schedule:
         first = randrange(2) == 0
         classes = self._classes
         course_classes = list(classes.keys())
-        parent_classes = parent2.classes
-        parent_course_classes = list(parent2.classes.keys())
+        parent_classes = parent.classes
+        parent_course_classes = list(parent.classes.keys())
         for i in range(0, size):
             if first:
                 course_class = course_classes[i]
                 dur = course_class.Duration
                 reservation = classes[course_class]
-                reservation_index = reservation.index
+                reservation_index = hash(reservation)
                 # insert class from first parent into new chromosome's class table
                 n_classes[course_class] = reservation
                 # all time-space slots of class are copied
@@ -118,7 +121,7 @@ class Schedule:
                 course_class = parent_course_classes[i]
                 dur = course_class.Duration
                 reservation = parent_classes[course_class]
-                reservation_index = reservation.index
+                reservation_index = hash(reservation)
                 # insert class from second parent into new chromosome's class table
                 n_classes[course_class] = reservation
                 # all time-space slots of class are copied
@@ -134,6 +137,78 @@ class Schedule:
 
         # return smart pointer to offspring
         return n
+        
+    @functools.lru_cache(maxsize=256)
+    # Performs crossover operation using to chromosomes and returns pointer to offspring
+    def crossovers(self, parent, r1, r2, r3, etaCross, crossoverProbability):
+        # number of classes
+        size = len(self._classes)
+        jrand = randrange(size)
+        
+        nr = self._configuration.numberOfRooms
+        DAY_HOURS = Constant.Constant.DAY_HOURS
+        DAYS_NUM = Constant.Constant.DAYS_NUM
+
+        # make new chromosome, copy chromosome setup
+        new_chromosome = self.copy(self, True)
+        new_chromosome_slots = new_chromosome._slots
+        new_chromosome_classes = new_chromosome._classes
+        classes = self._classes
+        course_classes = list(classes.keys())
+        parent_classes = parent.classes
+        parent_course_classes = list(parent.classes.keys())
+        for i in range(0, size):
+            if randrange(32768) % 100 > crossoverProbability or i == jrand:
+                course_class = course_classes[i]                
+                reservation1 = r1.classes[course_class]
+                reservation2 = r2.classes[course_class]
+                reservation3 = r3.classes[course_class]
+                
+                dur = course_class.Duration
+                day = int(reservation3.Day + etaCross * (reservation1.Day - reservation2.Day))
+                if day < 0:
+                    day = 0
+                elif day >= DAYS_NUM:
+                    day = DAYS_NUM - 1
+                    
+                room = int(reservation3.Room + etaCross * (reservation1.Room - reservation2.Room))
+                if room < 0:
+                    room = 0
+                elif room >= nr:
+                    room = nr - 1
+                    
+                time = int(reservation3.Time + etaCross * (reservation1.Time - reservation2.Time))
+                if time < 0:
+                    time = 0
+                elif time >= (DAY_HOURS - dur):
+                    time = DAY_HOURS - dur
+                    
+                reservation = Reservation.Reservation(nr, day, time, room)
+                reservation_index = hash(reservation)
+
+                # fill time-space slots, for each hour of class
+                for slot in new_chromosome_slots[reservation_index: reservation_index + dur]:
+                    slot.append(course_class)
+
+                # insert in class table of chromosome
+                new_chromosome_classes[course_class] = reservation
+            else:
+                course_class = parent_course_classes[i]
+                dur = course_class.Duration
+                reservation = parent_classes[course_class]
+                reservation_index = hash(reservation)
+                
+                # all time-space slots of class are copied
+                for slot in new_chromosome_slots[reservation_index: reservation_index + dur]:
+                    slot.append(course_class)
+                
+                # insert class from second parent into new chromosome's class table
+                new_chromosome_classes[course_class] = reservation
+                
+        new_chromosome.calculateFitness()
+
+        # return smart pointer to offspring
+        return new_chromosome
 
     # Performs mutation on chromosome
     def mutation(self, mutationSize, mutationProbability):
@@ -160,6 +235,7 @@ class Schedule:
             # current time-space slot used by class
             cc1 = course_classes[mpos]
             reservation1 = classes[cc1]
+            reservation1_index = hash(reservation1)
 
             # determine position of class randomly
             dur = cc1.Duration
@@ -167,16 +243,17 @@ class Schedule:
             room = randrange(32768) % nr
             time = randrange(32768) % (DAY_HOURS + 1 - dur)
             reservation2 = Reservation.Reservation(nr, day, time, room)
+            reservation2_index = hash(reservation2)
 
             # move all time-space slots
             for j in range(0, dur):
                 # remove class hour from current time-space slot
-                cl = slots[reservation1.index + j]
+                cl = slots[reservation1_index + j]
                 for cc1 in cl:
                     cl.remove(cc1)
 
                 # move class hour to new time-space slot
-                slots[reservation2.index + j].append(cc1)
+                slots[reservation2_index + j].append(cc1)
 
             # change entry of class table to point to new time-space slots
             classes[cc1] = reservation2
@@ -209,7 +286,8 @@ class Schedule:
             dur = cc.Duration
 
             # check for room overlapping of classes
-            cls = slots[reservation.index: reservation.index + dur]
+            reservation_index = hash(reservation)
+            cls = slots[reservation_index: reservation_index + dur]
             ro = any(filter(lambda slot: len(slot) > 1, cls))
 
             # on room overlapping
@@ -289,3 +367,42 @@ class Schedule:
     # Return reference to array of time-space slots
     def slots(self):
         return self._slots
+        
+    @property
+    def diversity(self):
+        return self._diversity
+
+    @diversity.setter
+    def diversity(self, new_diversity):
+        self._diversity = new_diversity
+        
+    @property
+    def rank(self):
+        return self._rank
+
+    @rank.setter
+    def rank(self, new_rank):
+        self._rank = new_rank
+        
+    def __hash__(self) -> int:
+        prime = 31
+        result = 1
+        classes = self._classes
+        for cc in classes.keys():
+            reservation = classes[cc]
+            result = prime * result + (0 if reservation is None else hash(reservation))
+        return result
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            classes = self._classes
+            for cc in classes.keys():
+                reservation = classes[cc]
+                otherReservation = other.classes[cc]
+                if reservation != otherReservation:
+                    return False
+        else:
+            return False
+            
+    def __ne__(self, other):
+        return not self.__eq__(other)
