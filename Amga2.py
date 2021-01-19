@@ -309,7 +309,7 @@ class Amga2:
         self.assignDiversityMetric(mixedPopulation, pool)
         poolSize = len(pool)
         indexArray = sorted(pool, key=lambda e: mixedPopulation[e].diversity)
-        for i in range(0, desiredSize):
+        for i in range(desiredSize):
             population[startLocation + i] = mixedPopulation[indexArray[poolSize - 1 - i]]
             
     def createParentPopulation(self):
@@ -371,17 +371,14 @@ class Amga2:
         for e in archivePopulation:
             e.diversity = 0
             
-    def finalizePopulation(self):
-        pool = []
-        elite = []
+    def finalizePopulation(self):        
         currentArchiveSize = self._currentArchiveSize
         populationSize = self._populationSize
         archivePopulation = self._archivePopulation
         combinedPopulation = self._combinedPopulation
         
-        for i in range(currentArchiveSize):
-            if archivePopulation[i].fitness >= 0:
-                pool.append(i)
+        elite = []
+        pool = [i for i in range(currentArchiveSize) if archivePopulation[i].fitness >= 0]
                 
         if pool:
             self.extractBestRank(archivePopulation, pool, elite)
