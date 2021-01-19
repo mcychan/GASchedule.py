@@ -137,10 +137,10 @@ class NsgaII:
         population = populationSize * [None]
 
         self.initialize(population)
+        random.seed(round(time.time() * 1000))
 
         # Current generation
         currentGeneration = 0
-        random.seed()
 
         repeat = 0
         lastBestFit = 0.0
@@ -192,6 +192,7 @@ class NsgaII:
                 self._chromosomes = selection(newBestFront, totalChromosome)
                 lastBestFit = best.fitness
 
+            random.seed(round(time.time() * 1000))
             currentGeneration += 1
             
     def __str__(self):

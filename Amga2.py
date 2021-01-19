@@ -2,6 +2,7 @@ import Schedule
 import functools
 import random
 from random import randrange
+import time
 
 
 # Archive-Based Steady-State Micro Genetic Algorithm(AMGA2)
@@ -19,7 +20,7 @@ class Amga2:
         self._parentPopulation = []
         self._offspringPopulation = []
         self._combinedPopulation = []
-        self._populationSize = self._archiveSize = numberOfChromosomes    
+        self._populationSize = self._archiveSize = numberOfChromosomes  
 
     # Initializes genetic algorithm
     def __init__(self, configuration, etaCross=0.35, mutationSize=2, crossoverProbability=80,
@@ -407,10 +408,10 @@ class Amga2:
         createOffspringPopulation = self.createOffspringPopulation
         mutateOffspringPopulation = self.mutateOffspringPopulation
         updateArchivePopulation = self.updateArchivePopulation
+        random.seed(round(time.time() * 1000))
 
         # Current generation
-        currentGeneration = 0
-        random.seed()
+        currentGeneration = 0         
 
         repeat = 0
         lastBestFit = 0.0
@@ -438,6 +439,7 @@ class Amga2:
             createOffspringPopulation()
             mutateOffspringPopulation()
             updateArchivePopulation()
+            random.seed(round(time.time() * 1000)) 
             currentGeneration += 1
             
     def __str__(self):

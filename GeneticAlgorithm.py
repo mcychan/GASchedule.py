@@ -149,10 +149,10 @@ class GeneticAlgorithm:
         length_chromosomes = len(self._chromosomes)
 
         self.initialize(self._chromosomes)
+        random.seed(round(time.time() * 1000))
 
         # Current generation
         currentGeneration = 0
-        random.seed()
 
         repeat = 0
         lastBestFit = 0.0
@@ -178,6 +178,7 @@ class GeneticAlgorithm:
             self.replacement(self._chromosomes, self._replaceByGeneration)
 
             lastBestFit = best.fitness
+            random.seed(round(time.time() * 1000))
             currentGeneration += 1
             
     def __str__(self):
