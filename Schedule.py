@@ -180,7 +180,7 @@ class Schedule:
                 time = int(reservation3.Time + etaCross * (reservation1.Time - reservation2.Time))
                 if time < 0:
                     time = 0
-                elif time >= (DAY_HOURS - dur):
+                elif time >= (DAY_HOURS + 1 - dur):
                     time = DAY_HOURS - dur
                     
                 reservation = Reservation.Reservation(nr, day, time, room)
@@ -246,7 +246,7 @@ class Schedule:
             reservation2_index = hash(reservation2)
 
             # move all time-space slots
-            for j in range(0, dur):
+            for j in range(dur):
                 # remove class hour from current time-space slot
                 cl = slots[reservation1_index + j]
                 for cc1 in cl:

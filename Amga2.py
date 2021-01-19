@@ -287,11 +287,12 @@ class Amga2:
         while hasBetter and len(filled) < populationLength:
             hasBetter = extractBestRank(mixedPopulation, pool, elite)
             for index in elite:
-                mixedPopulation[index].rank = rank
-            rank += 1
+                mixedPopulation[index].rank = rank            
             
             if rank == 1:
                 assignInfiniteDiversity(mixedPopulation, elite)
+                
+            rank += 1
                 
             if len(elite) + len(filled) < populationLength:
                 filled.extend(elite)
