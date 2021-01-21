@@ -443,5 +443,5 @@ class Amga2:
             currentGeneration += 1
             
     def __str__(self):
-        return "Archive-Based Steady-State Micro Genetic Algorithm (AMGA2)"             
+        return "Archive-based Micro Genetic Algorithm (AMGA2)"             
             
