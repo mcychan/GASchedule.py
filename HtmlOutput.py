@@ -62,7 +62,7 @@ class HtmlOutput:
             if cc.LabRequired:
                 sb.append("Lab<br />")
 
-            for i in range(0, length_CRITERIAS):
+            for i in range(length_CRITERIAS):
                 sb.append("<span style='color:")
                 if solution.criteria[ci + i]:
                     sb.append(COLOR1)
@@ -113,7 +113,7 @@ class HtmlOutput:
             return ""
 
         sb = []
-        for k in range(0, nr):
+        for k in range(nr):
             room = getRoomById(k)
             for j in range(0, HtmlOutput.ROOM_ROW_NUMBER):
                 if j == 0:
@@ -127,7 +127,7 @@ class HtmlOutput:
                     room_duration = slot_table[key] if key in slot_table.keys() else None
                     room_schedule = time_table[key] if key in time_table.keys() else None
                     sb.append("<tr>")
-                    for i in range(0, HtmlOutput.ROOM_COLUMN_NUMBER):
+                    for i in range(HtmlOutput.ROOM_COLUMN_NUMBER):
                         if i == 0:
                             sb.append("<th style='border: 1px solid black; padding: 5px' scope='row' colspan='2'>")
                             sb.append(HtmlOutput.PERIODS[j])

@@ -123,7 +123,7 @@ class GeneticAlgorithm:
         length_chromosomes = len(population)
         # produce offspring
         offspring = replaceByGeneration * [None]
-        for j in range(0, replaceByGeneration):
+        for j in range(replaceByGeneration):
             # selects parent randomly
             parent = selection(population)
 
@@ -181,7 +181,6 @@ class GeneticAlgorithm:
             lastBestFit = best.fitness
             random.seed(round(time.time() * 1000))
             currentGeneration += 1
-            
+
     def __str__(self):
         return "Genetic Algorithm"
-        
