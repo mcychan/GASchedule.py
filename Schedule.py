@@ -1,5 +1,5 @@
-import Constant
-import Reservation
+from Constant import Constant
+from Reservation import Reservation
 from collections import defaultdict
 from random import randrange
 
@@ -13,15 +13,15 @@ class Schedule:
         self._fitness = 0
 
         # Time-space slots, one entry represent one hour in one classroom
-        slots_length = Constant.Constant.DAYS_NUM * Constant.Constant.DAY_HOURS * self._configuration.numberOfRooms
+        slots_length = Constant.DAYS_NUM * Constant.DAY_HOURS * self._configuration.numberOfRooms
         self._slots = [[] for _ in range(slots_length)]
 
         # Class table for chromosome
         # Used to determine first time-space slot used by class
-        self._classes = defaultdict(Reservation.Reservation)
+        self._classes = defaultdict(Reservation)
 
         # Flags of class requirements satisfaction
-        self._criteria = (self._configuration.numberOfCourseClasses * Constant.Constant.DAYS_NUM) * [False]
+        self._criteria = (self._configuration.numberOfCourseClasses * Constant.DAYS_NUM) * [False]
         
         self._diversity = 0.0
         self._rank = 0
@@ -52,15 +52,15 @@ class Schedule:
         # place classes at random position
         classes = self._configuration.courseClasses
         nr = self._configuration.numberOfRooms
-        DAYS_NUM = Constant.Constant.DAYS_NUM
-        DAY_HOURS = Constant.Constant.DAY_HOURS + 1
+        DAYS_NUM = Constant.DAYS_NUM
+        DAY_HOURS = Constant.DAY_HOURS + 1
         for c in classes:
             # determine random position of class
             dur = c.Duration
             day = randrange(32768) % DAYS_NUM
             room = randrange(32768) % nr
             time = randrange(32768) % (DAY_HOURS - dur)
-            reservation = Reservation.Reservation(nr, day, time, room)
+            reservation = Reservation(nr, day, time, room)
             reservation_index = hash(reservation)
 
             # fill time-space slots, for each hour of class
@@ -143,8 +143,8 @@ class Schedule:
         jrand = randrange(size)
         
         nr = self._configuration.numberOfRooms
-        DAY_HOURS = Constant.Constant.DAY_HOURS
-        DAYS_NUM = Constant.Constant.DAYS_NUM
+        DAY_HOURS = Constant.DAY_HOURS
+        DAYS_NUM = Constant.DAYS_NUM
 
         # make new chromosome, copy chromosome setup
         new_chromosome = self.copy(self, True)
@@ -180,7 +180,7 @@ class Schedule:
                 elif time >= (DAY_HOURS + 1 - dur):
                     time = DAY_HOURS - dur
                     
-                reservation = Reservation.Reservation(nr, day, time, room)
+                reservation = Reservation(nr, day, time, room)
                 reservation_index = hash(reservation)
 
                 # fill time-space slots, for each hour of class
@@ -221,8 +221,8 @@ class Schedule:
         slots = self._slots
         nr = configuration.numberOfRooms
 
-        DAY_HOURS = Constant.Constant.DAY_HOURS
-        DAYS_NUM = Constant.Constant.DAYS_NUM
+        DAY_HOURS = Constant.DAY_HOURS
+        DAYS_NUM = Constant.DAYS_NUM
 
         # move selected number of classes at random position
         for i in range(mutationSize, 0, -1):
@@ -239,7 +239,7 @@ class Schedule:
             day = randrange(32768) % DAYS_NUM
             room = randrange(32768) % nr
             time = randrange(32768) % (DAY_HOURS + 1 - dur)
-            reservation2 = Reservation.Reservation(nr, day, time, room)
+            reservation2 = Reservation(nr, day, time, room)
             reservation2_index = hash(reservation2)
 
             # move all time-space slots
@@ -267,8 +267,8 @@ class Schedule:
         items = self._classes.items()
         slots = self._slots
         numberOfRooms = configuration.numberOfRooms
-        DAY_HOURS = Constant.Constant.DAY_HOURS
-        DAYS_NUM = Constant.Constant.DAYS_NUM
+        DAY_HOURS = Constant.DAY_HOURS
+        DAYS_NUM = Constant.DAYS_NUM
         daySize = DAY_HOURS * numberOfRooms
 
         ci = 0
