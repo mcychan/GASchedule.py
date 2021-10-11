@@ -1,6 +1,5 @@
 import Constant
 import Reservation
-import functools
 from collections import defaultdict
 from random import randrange
 
@@ -74,7 +73,6 @@ class Schedule:
         new_chromosome.calculateFitness()
         return new_chromosome
 
-    @functools.lru_cache(maxsize=256)
     # Performs crossover operation using to chromosomes and returns pointer to offspring
     def crossover(self, parent, numberOfCrossoverPoints, crossoverProbability):
         # check probability of crossover operation
@@ -106,7 +104,7 @@ class Schedule:
         course_classes = list(classes.keys())
         parent_classes = parent.classes
         parent_course_classes = list(parent.classes.keys())
-        for i in range(0, size):
+        for i in range(size):
             if first:
                 course_class = course_classes[i]
                 dur = course_class.Duration
@@ -138,7 +136,6 @@ class Schedule:
         # return smart pointer to offspring
         return n
         
-    @functools.lru_cache(maxsize=256)
     # Performs crossover operation using to chromosomes and returns pointer to offspring
     def crossovers(self, parent, r1, r2, r3, etaCross, crossoverProbability):
         # number of classes
@@ -157,7 +154,7 @@ class Schedule:
         course_classes = list(classes.keys())
         parent_classes = parent.classes
         parent_course_classes = list(parent.classes.keys())
-        for i in range(0, size):
+        for i in range(size):
             if randrange(32768) % 100 > crossoverProbability or i == jrand:
                 course_class = course_classes[i]                
                 reservation1 = r1.classes[course_class]

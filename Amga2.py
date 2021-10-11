@@ -70,19 +70,12 @@ class Amga2:
         prototype = self._prototype
         archiveSize = self._archiveSize
         populationSize = self._populationSize
-        archivePopulation = self._archivePopulation = []
-        parentPopulation = self._parentPopulation = []
-        offspringPopulation = self._offspringPopulation = []
-        combinedPopulation = self._combinedPopulation = []
+        archivePopulation = self._archivePopulation = [prototype.makeNewFromPrototype() for i in range(archiveSize)]
+        parentPopulation = self._parentPopulation = [prototype.makeNewFromPrototype() for i in range(populationSize)]
+        offspringPopulation = self._offspringPopulation = [prototype.makeNewFromPrototype() for i in range(populationSize)]
+        combinedPopulation = self._combinedPopulation = [prototype.makeNewFromPrototype() for i in range(archiveSize)]
 
-        for i in range(archiveSize):
-            archivePopulation.append(prototype.makeNewFromPrototype())
-            combinedPopulation.append(prototype.makeNewFromPrototype())
-
-        for i in range(populationSize):
-            parentPopulation.append(prototype.makeNewFromPrototype())
-            offspringPopulation.append(prototype.makeNewFromPrototype())
-            combinedPopulation.append(prototype.makeNewFromPrototype())
+        combinedPopulation += [prototype.makeNewFromPrototype() for i in range(populationSize)]
 
     def assignInfiniteDiversity(self, population, elite):
         for index in elite:
@@ -146,6 +139,7 @@ class Amga2:
                                                                        etaCross, crossoverProbability)
             offspringPopulation[i].rank = parentPopulation[i].rank  # for rank based mutation
 
+    @functools.total_ordering
     def checkDomination(self, a, b):
         if a.fitness < b.fitness:
             return -1

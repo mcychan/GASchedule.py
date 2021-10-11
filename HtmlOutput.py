@@ -17,39 +17,64 @@ class HtmlOutput:
     WEEK_DAYS = ("MON", "TUE", "WED", "THU", "FRI")
 
     @staticmethod
-    def generateTimeTable(solution, slot_table):
-        ci = 0
-
-        time_table = defaultdict(list)
-        items = solution.classes.items
+    def getCourseClass(cc, criterias, ci):
         COLOR1 = HtmlOutput.COLOR1
         COLOR2 = HtmlOutput.COLOR2
         CRITERIAS = HtmlOutput.CRITERIAS
         length_CRITERIAS = len(CRITERIAS)
         CRITERIAS_DESCR = HtmlOutput.CRITERIAS_DESCR
+
+        sb = [cc.Course.Name, "<br />", cc.Professor.Name, "<br />", "/".join(map(lambda grp: grp.Name, cc.Groups)),
+                  "<br />"]
+        if cc.LabRequired:
+            sb.append("Lab<br />")
+
+        for i in range(length_CRITERIAS):
+            sb.append("<span style='color:")
+            if criterias[ci + i]:
+                sb.append(COLOR1)
+                sb.append("' title='")
+                sb.append(CRITERIAS_DESCR[i].format(any="" if (i == 1 or i == 2) else "no "))
+            else:
+                sb.append(COLOR2)
+                sb.append("' title='")
+                sb.append(CRITERIAS_DESCR[i].format(any="not " if (i == 1 or i == 2) else ""))
+            sb.append("'> ")
+            sb.append(CRITERIAS[i])
+            sb.append(" </span>")
+
+        return sb
+
+    @staticmethod
+    def generateTimeTable(solution, slot_table):
+        ci = 0
+
+        time_table = defaultdict(list)
+        items = solution.classes.items        
         ROOM_COLUMN_NUMBER = HtmlOutput.ROOM_COLUMN_NUMBER
+        getCourseClass = HtmlOutput.getCourseClass
 
         for cc, reservation in items():
             # coordinate of time-space slot
-            day = reservation.Day + 1
-            time = reservation.Time + 1
-            room = reservation.Room
+            dayId = reservation.Day + 1
+            periodId = reservation.Time + 1
+            roomId = reservation.Room
             dur = cc.Duration
 
-            key = (time, room)
+            key = (periodId, roomId)
             if key in slot_table:
                 room_duration = slot_table[key]
             else:
                 room_duration = ROOM_COLUMN_NUMBER * [0]
                 slot_table[key] = room_duration
-            room_duration[day] = dur
+            room_duration[dayId] = dur
 
             for m in range(1, dur):
-                next_key = (time + m, room)
+                next_key = (periodId + m, roomId)
                 if next_key not in slot_table:
                     slot_table[next_key] = ROOM_COLUMN_NUMBER * [0]
-                if slot_table[next_key][day] < 1:
-                    slot_table[next_key][day] = -1
+                if slot_table[next_key][dayId] < 1:
+                    slot_table[next_key][dayId] = -1
 
             if key in time_table:
                 room_schedule = time_table[key]
@@ -57,26 +82,7 @@ class HtmlOutput:
                 room_schedule = ROOM_COLUMN_NUMBER * [None]
                 time_table[key] = room_schedule
 
-            sb = [cc.Course.Name, "<br />", cc.Professor.Name, "<br />", "/".join(map(lambda grp: grp.Name, cc.Groups)),
-                  "<br />"]
-            if cc.LabRequired:
-                sb.append("Lab<br />")
-
-            for i in range(length_CRITERIAS):
-                sb.append("<span style='color:")
-                if solution.criteria[ci + i]:
-                    sb.append(COLOR1)
-                    sb.append("' title='")
-                    sb.append(CRITERIAS_DESCR[i].format(any="" if (i == 1 or i == 2) else "no "))
-                else:
-                    sb.append(COLOR2)
-                    sb.append("' title='")
-                    sb.append(CRITERIAS_DESCR[i].format(any="not " if (i == 1 or i == 2) else ""))
-                sb.append("'> ")
-                sb.append(CRITERIAS[i])
-                sb.append(" </span>")
-
-            room_schedule[day] = "".join(sb)
+            room_schedule[dayId] = "".join(getCourseClass(cc, solution.criteria, ci))
             ci += Constant.Constant.DAYS_NUM
 
         return time_table
@@ -113,35 +119,35 @@ class HtmlOutput:
             return ""
 
         sb = []
-        for k in range(nr):
-            room = getRoomById(k)
-            for j in range(0, HtmlOutput.ROOM_ROW_NUMBER):
-                if j == 0:
+        for roomId in range(nr):
+            room = getRoomById(roomId)
+            for periodId in range(HtmlOutput.ROOM_ROW_NUMBER):
+                if periodId == 0:
                     sb.append("<div id='room_")
                     sb.append(room.Name)
                     sb.append("' style='padding: 0.5em'>\n")
                     sb.append("<table style='border-collapse: collapse; width: 95%'>\n")
                     sb.append(HtmlOutput.getTableHeader(room))
                 else:
-                    key = (j, k)
+                    key = (periodId, roomId)
                     room_duration = slot_table[key] if key in slot_table.keys() else None
                     room_schedule = time_table[key] if key in time_table.keys() else None
                     sb.append("<tr>")
-                    for i in range(HtmlOutput.ROOM_COLUMN_NUMBER):
-                        if i == 0:
+                    for dayId in range(HtmlOutput.ROOM_COLUMN_NUMBER):
+                        if dayId == 0:
                             sb.append("<th style='border: 1px solid black; padding: 5px' scope='row' colspan='2'>")
-                            sb.append(HtmlOutput.PERIODS[j])
+                            sb.append(HtmlOutput.PERIODS[periodId])
                             sb.append("</th>\n")
                             continue
 
                         if room_schedule is None and room_duration is None:
                             continue
 
-                        content = room_schedule[i] if room_schedule is not None else None
-                        sb.append(HtmlOutput.getHtmlCell(content, room_duration[i]))
+                        content = room_schedule[dayId] if room_schedule is not None else None
+                        sb.append(HtmlOutput.getHtmlCell(content, room_duration[dayId]))
                     sb.append("</tr>\n")
 
-                if j == HtmlOutput.ROOM_ROW_NUMBER - 1:
+                if periodId == HtmlOutput.ROOM_ROW_NUMBER - 1:
                     sb.append("</table>\n</div>\n")
 
         return "".join(str(v) for v in sb)
