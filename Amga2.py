@@ -1,6 +1,7 @@
 import Schedule
 import functools
 import random
+from collections import deque
 from random import randrange
 import time
 
@@ -70,12 +71,19 @@ class Amga2:
     def initialize(self):
         prototype = self._prototype
         archiveSize, populationSize = self._archiveSize, self._populationSize
-        archivePopulation = self._archivePopulation = [prototype.makeNewFromPrototype() for i in range(archiveSize)]
-        parentPopulation = self._parentPopulation = [prototype.makeNewFromPrototype() for i in range(populationSize)]
-        offspringPopulation = self._offspringPopulation = [prototype.makeNewFromPrototype() for i in range(populationSize)]
-        combinedPopulation = self._combinedPopulation = [prototype.makeNewFromPrototype() for i in range(archiveSize)]
+        archivePopulation = self._archivePopulation = []
+        parentPopulation = self._parentPopulation = []
+        offspringPopulation = self._offspringPopulation = []
+        combinedPopulation = self._combinedPopulation = []
 
-        combinedPopulation += [prototype.makeNewFromPrototype() for i in range(populationSize)]
+        for i in range(archiveSize):
+            archivePopulation.append(prototype.makeNewFromPrototype())
+            combinedPopulation.append(prototype.makeNewFromPrototype())
+
+        for i in range(populationSize):
+            parentPopulation.append(prototype.makeNewFromPrototype())
+            offspringPopulation.append(prototype.makeNewFromPrototype())
+            combinedPopulation.append(prototype.makeNewFromPrototype())
 
     def assignInfiniteDiversity(self, population, elite):
         for index in elite:
@@ -153,7 +161,7 @@ class Amga2:
         if desiredEliteSize <= numInf:
             return filtered[:desiredEliteSize]
 
-        elite = list(dict.fromkeys(pool))
+        elite = deque(dict.fromkeys(pool))
         pool.clear()
         if desiredEliteSize <= numInf:
             return elite
@@ -226,7 +234,7 @@ class Amga2:
                     originalArray[index2] = -1
 
         while len(elite) > desiredEliteSize:
-            pool.append(elite.pop(0))
+            pool.append(elite.popleft())
 
         return elite
 
@@ -235,17 +243,17 @@ class Amga2:
             return False
 
         checkDomination = self.checkDomination
-        remains = []
-        elite.append(pool.pop(0))
+        remains = deque()
+        elite.append(pool.popleft())
 
         while pool:
-            index1 = pool.pop(0)
+            index1 = pool.popleft()
             flag, index2 = -1, 0
             while index2 < len(elite):
                 flag = checkDomination(population[index1], population[index2])
                 if flag == 1:
                     remains.append(index2)
-                    elite.pop(index2)
+                    del elite[index2]
                 elif flag == -1:
                     break
                 else:
@@ -261,8 +269,8 @@ class Amga2:
         return True
 
     def fillBestPopulation(self, mixedPopulation, mixedLength, population, populationLength):
-        pool = list(range(mixedLength))
-        elite, filled = [], []
+        pool = deque(range(mixedLength))
+        elite, filled = deque(), deque()
         rank = 1
 
         assignInfiniteDiversity = self.assignInfiniteDiversity
@@ -300,8 +308,8 @@ class Amga2:
             population[startLocation + i] = mixedPopulation[indexArray[poolSize - 1 - i]]
 
     def createParentPopulation(self):
-        pool = list(range(self._currentArchiveSize))
-        elite, selectionPool = [], []
+        pool = deque(range(self._currentArchiveSize))
+        elite, selectionPool = deque(), deque()
 
         rank, populationSize = 1, self._populationSize
         archivePopulation, parentPopulation = self._archivePopulation, self._parentPopulation
@@ -354,8 +362,8 @@ class Amga2:
         currentArchiveSize, populationSize = self._currentArchiveSize, self._populationSize
         archivePopulation, combinedPopulation = self._archivePopulation, self._combinedPopulation
 
-        elite = []
-        pool = [i for i in range(currentArchiveSize) if archivePopulation[i].fitness >= 0]
+        elite = deque()
+        pool = deque([i for i in range(currentArchiveSize) if archivePopulation[i].fitness >= 0])
 
         if pool:
             self.extractBestRank(archivePopulation, pool, elite)

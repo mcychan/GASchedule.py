@@ -1,6 +1,6 @@
 from Constant import Constant
 from Reservation import Reservation
-from collections import defaultdict
+from collections import defaultdict, deque
 from random import randrange
 
 
@@ -61,8 +61,8 @@ class Schedule:
             reservation_index = hash(reservation)
 
             # fill time-space slots, for each hour of class
-            for slot in new_chromosome_slots[reservation_index: reservation_index + dur]:
-                slot.append(c)
+            for i in range(reservation_index, reservation_index + dur):
+                new_chromosome_slots[i].append(c)
 
             # insert in class table of chromosome
             new_chromosome_classes[c] = reservation
@@ -107,8 +107,8 @@ class Schedule:
                 # insert class from first parent into new chromosome's class table
                 n_classes[course_class] = reservation
                 # all time-space slots of class are copied
-                for slot in n_slots[reservation_index: reservation_index + dur]:
-                    slot.append(course_class)
+                for i in range(reservation_index, reservation_index + dur):
+                    n_slots[i].append(course_class)
             else:
                 course_class = parent_course_classes[i]
                 dur = course_class.Duration
@@ -117,8 +117,8 @@ class Schedule:
                 # insert class from second parent into new chromosome's class table
                 n_classes[course_class] = reservation
                 # all time-space slots of class are copied
-                for slot in n_slots[reservation_index: reservation_index + dur]:
-                    slot.append(course_class)
+                for i in range(reservation_index, reservation_index + dur):
+                    n_slots[i].append(course_class)
 
             # crossover point
             if cp[i]:
@@ -174,8 +174,8 @@ class Schedule:
                 reservation_index = hash(reservation)
 
                 # fill time-space slots, for each hour of class
-                for slot in new_chromosome_slots[reservation_index: reservation_index + dur]:
-                    slot.append(course_class)
+                for i in range(reservation_index, reservation_index + dur):
+                    new_chromosome_slots[i].append(course_class)
 
                 # insert in class table of chromosome
                 new_chromosome_classes[course_class] = reservation
@@ -186,8 +186,8 @@ class Schedule:
                 reservation_index = hash(reservation)
                 
                 # all time-space slots of class are copied
-                for slot in new_chromosome_slots[reservation_index: reservation_index + dur]:
-                    slot.append(course_class)
+                for i in range(reservation_index, reservation_index + dur):
+                    new_chromosome_slots[i].append(course_class)
                 
                 # insert class from second parent into new chromosome's class table
                 new_chromosome_classes[course_class] = reservation
@@ -295,18 +295,19 @@ class Schedule:
             try:
                 for k in range(numberOfRooms, 0, -1):
                     # for each hour of class
-                    cl = slots[t: t + dur]
-                    for cc1 in cl:
-                        if cc != cc1:
-                            # professor overlaps?
-                            if not po and professorOverlaps(cc1):
-                                po = True
-                            # student group overlaps?
-                            if not go and groupsOverlap(cc1):
-                                go = True
-                            # both type of overlapping? no need to check more
-                            if po and go:
-                                raise Exception('no need to check more')
+                    for i in range(t, t + dur):
+                        cl = slots[i]
+                        for cc1 in cl:
+                            if cc != cc1:
+                                # professor overlaps?
+                                if not po and professorOverlaps(cc1):
+                                    po = True
+                                # student group overlaps?
+                                if not go and groupsOverlap(cc1):
+                                    go = True
+                                # both type of overlapping? no need to check more
+                                if po and go:
+                                    raise Exception('no need to check more')
 
                     t += DAY_HOURS
             except Exception:
