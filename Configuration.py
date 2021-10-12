@@ -1,11 +1,11 @@
 import codecs
 import json
 
-import Professor
-import StudentsGroup
-import Course
-import Room
-import CourseClass
+from Professor import Professor
+from StudentsGroup import StudentsGroup
+from Course import Course
+from Room import Room
+from CourseClass import CourseClass
 
 
 # Reads configuration file and stores parsed objects
@@ -103,7 +103,7 @@ class Configuration:
 
         if id == 0 or name == '':
             return None
-        return Professor.Professor(id, name)
+        return Professor(id, name)
 
     # Reads StudentsGroup's data from config file, makes object and returns
     # Returns None if method cannot parse configuration data
@@ -123,7 +123,7 @@ class Configuration:
 
         if id == 0:
             return None
-        return StudentsGroup.StudentsGroup(id, name, size)
+        return StudentsGroup(id, name, size)
 
     # Reads course's data from config file, makes object and returns
     # Returns None if method dictConfig parse configuration data
@@ -140,7 +140,7 @@ class Configuration:
 
         if id == 0:
             return None
-        return Course.Course(id, name)
+        return Course(id, name)
 
     # Reads rooms's data from config file, makes object and returns
     # Returns None if method cannot parse configuration data
@@ -160,7 +160,7 @@ class Configuration:
 
         if size == 0 or name == '':
             return None
-        return Room.Room(name, lab, size)
+        return Room(name, lab, size)
 
     # Reads class' data from config file, makes object and returns pointer
     # Returns None if method cannot parse configuration data
@@ -201,7 +201,7 @@ class Configuration:
             return None
 
         # make object and return
-        return CourseClass.CourseClass(p, c, lab, dur, group_list)
+        return CourseClass(p, c, lab, dur, group_list)
 
     # parse file and store parsed object
     def parseFile(self, fileName):
@@ -212,8 +212,8 @@ class Configuration:
         self._rooms = {}
         self._courseClasses = []
 
-        Room.Room.restartIDs()
-        CourseClass.CourseClass.restartIDs()
+        Room.restartIDs()
+        CourseClass.restartIDs()
 
         with codecs.open(fileName, "r", "utf-8") as f:
             # read file into a string and deserialize JSON to a type
