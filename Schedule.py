@@ -30,8 +30,7 @@ class Schedule:
         if not setup_only:
             self._configuration = c.configuration
             # copy code
-            self._slots = c.slots
-            self._classes = c.classes
+            self._slots, self._classes = c.slots, c.classes
 
             # copy flags of class requirements
             self._criteria = c.criteria
@@ -46,14 +45,12 @@ class Schedule:
     def makeNewFromPrototype(self):
         # make new chromosome, copy chromosome setup
         new_chromosome = self.copy(self, True)
-        new_chromosome_slots = new_chromosome._slots
-        new_chromosome_classes = new_chromosome._classes
+        new_chromosome_slots, new_chromosome_classes = new_chromosome._slots, new_chromosome._classes
 
         # place classes at random position
         classes = self._configuration.courseClasses
         nr = self._configuration.numberOfRooms
-        DAYS_NUM = Constant.DAYS_NUM
-        DAY_HOURS = Constant.DAY_HOURS + 1
+        DAYS_NUM, DAY_HOURS = Constant.DAYS_NUM, Constant.DAY_HOURS + 1
         for c in classes:
             # determine random position of class
             dur = c.Duration
@@ -82,11 +79,11 @@ class Schedule:
 
         # new chromosome object, copy chromosome setup
         n = self.copy(self, True)
-        n_classes = n._classes
-        n_slots = n._slots
+        n_classes, n_slots = n._classes, n._slots
 
+        classes = self._classes
         # number of classes
-        size = len(self._classes)
+        size = len(classes)
 
         cp = size * [False]
 
@@ -99,15 +96,12 @@ class Schedule:
                     cp[p] = check_point = True
 
         # make new code by combining parent codes
-        first = randrange(2) == 0
-        classes = self._classes
-        course_classes = list(classes.keys())
-        parent_classes = parent.classes
-        parent_course_classes = list(parent.classes.keys())
-        for i in range(size):
-            if first:
-                course_class = course_classes[i]
-                dur = course_class.Duration
+        first = randrange(2) == 0        
+        
+        if first:
+            course_classes = list(classes.keys())
+            dur = course_class.Duration
+            for course_class in course_classes:                
                 reservation = classes[course_class]
                 reservation_index = hash(reservation)
                 # insert class from first parent into new chromosome's class table
@@ -115,9 +109,11 @@ class Schedule:
                 # all time-space slots of class are copied
                 for slot in n_slots[reservation_index: reservation_index + dur]:
                     slot.append(course_class)
-            else:
-                course_class = parent_course_classes[i]
-                dur = course_class.Duration
+        else:
+            parent_classes = parent.classes
+            parent_course_classes = list(parent.classes.keys())
+            dur = course_class.Duration
+            for course_class in parent_course_classes:                
                 reservation = parent_classes[course_class]
                 reservation_index = hash(reservation)
                 # insert class from second parent into new chromosome's class table
@@ -126,10 +122,10 @@ class Schedule:
                 for slot in n_slots[reservation_index: reservation_index + dur]:
                     slot.append(course_class)
 
-            # crossover point
-            if cp[i]:
-                # change source chromosome
-                first = not first
+        # crossover point
+        if cp[i]:
+            # change source chromosome
+            first = not first
 
         n.calculateFitness()
 
@@ -143,13 +139,11 @@ class Schedule:
         jrand = randrange(size)
         
         nr = self._configuration.numberOfRooms
-        DAY_HOURS = Constant.DAY_HOURS
-        DAYS_NUM = Constant.DAYS_NUM
+        DAY_HOURS, DAYS_NUM = Constant.DAY_HOURS, Constant.DAYS_NUM
 
         # make new chromosome, copy chromosome setup
         new_chromosome = self.copy(self, True)
-        new_chromosome_slots = new_chromosome._slots
-        new_chromosome_classes = new_chromosome._classes
+        new_chromosome_slots, new_chromosome_classes = new_chromosome._slots, new_chromosome._classes
         classes = self._classes
         course_classes = list(classes.keys())
         parent_classes = parent.classes
@@ -157,9 +151,7 @@ class Schedule:
         for i in range(size):
             if randrange(32768) % 100 > crossoverProbability or i == jrand:
                 course_class = course_classes[i]                
-                reservation1 = r1.classes[course_class]
-                reservation2 = r2.classes[course_class]
-                reservation3 = r3.classes[course_class]
+                reservation1, reservation2, reservation3 = r1.classes[course_class], r2.classes[course_class], r3.classes[course_class]
                 
                 dur = course_class.Duration
                 day = int(reservation3.Day + etaCross * (reservation1.Day - reservation2.Day))
@@ -262,23 +254,19 @@ class Schedule:
         # chromosome's score
         score = 0
 
-        criteria = self._criteria
-        configuration = self._configuration
-        items = self._classes.items()
-        slots = self._slots
+        criteria, configuration = self._criteria, self._configuration
+        items, slots = self._classes.items(), self._slots
         numberOfRooms = configuration.numberOfRooms
-        DAY_HOURS = Constant.DAY_HOURS
-        DAYS_NUM = Constant.DAYS_NUM
+        DAY_HOURS, DAYS_NUM = Constant.DAY_HOURS, Constant.DAYS_NUM
         daySize = DAY_HOURS * numberOfRooms
 
         ci = 0
+        getRoomById = configuration.getRoomById
 
         # check criteria and calculate scores for each class in schedule
         for cc, reservation in items:
             # coordinate of time-space slot
-            day = reservation.Day
-            time = reservation.Time
-            room = reservation.Room
+            day, time, room  = reservation.Day, reservation.Time, reservation.Room
 
             dur = cc.Duration
 
@@ -292,7 +280,7 @@ class Schedule:
 
             criteria[ci + 0] = not ro
 
-            r = configuration.getRoomById(room)
+            r = getRoomById(room)
             # does current room have enough seats
             criteria[ci + 1] = r.NumberOfSeats >= cc.NumberOfSeats
             score = score + 1 if criteria[ci + 1] else score / 2
@@ -305,8 +293,7 @@ class Schedule:
 
             # check overlapping of classes for professors and student groups
             t = day * daySize + time
-            professorOverlaps = cc.professorOverlaps
-            groupsOverlap = cc.groupsOverlap
+            professorOverlaps, groupsOverlap = cc.professorOverlaps, cc.groupsOverlap
             try:
                 for k in range(numberOfRooms, 0, -1):
                     # for each hour of class
@@ -394,9 +381,7 @@ class Schedule:
         if isinstance(other, self.__class__):
             classes = self._classes
             for cc in classes.keys():
-                reservation = classes[cc]
-                otherReservation = other.classes[cc]
-                if reservation != otherReservation:
+                if classes[cc] != other.classes[cc]:
                     return False
         else:
             return False

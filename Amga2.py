@@ -27,10 +27,8 @@ class Amga2:
     def __init__(self, configuration, etaCross=0.35, mutationSize=2, crossoverProbability=80,
                  mutationProbability=3):
         self.initAlgorithm(Schedule.Schedule(configuration))
-        self._mutationSize = mutationSize
-        self._etaCross = etaCross
-        self._crossoverProbability = crossoverProbability
-        self._mutationProbability = mutationProbability
+        self._mutationSize, self._etaCross = mutationSize, etaCross
+        self._crossoverProbability, self._mutationProbability = crossoverProbability, mutationProbability
 
     @functools.total_ordering
     class DistanceMatrix:
@@ -60,6 +58,9 @@ class Amga2:
         def __eq__(self, other):
             return self.index1 == other.index1 and self.index2 == other.index2 and self.distance == other.distance
 
+        def __ne__(self, other):
+            return not self.__eq__(other)
+
     @property
     # Returns pointer to best chromosomes in population
     def result(self):
@@ -68,8 +69,7 @@ class Amga2:
     # initialize new population with chromosomes randomly built using prototype
     def initialize(self):
         prototype = self._prototype
-        archiveSize = self._archiveSize
-        populationSize = self._populationSize
+        archiveSize, populationSize = self._archiveSize, self._populationSize
         archivePopulation = self._archivePopulation = [prototype.makeNewFromPrototype() for i in range(archiveSize)]
         parentPopulation = self._parentPopulation = [prototype.makeNewFromPrototype() for i in range(populationSize)]
         offspringPopulation = self._offspringPopulation = [prototype.makeNewFromPrototype() for i in range(populationSize)]
@@ -116,13 +116,9 @@ class Amga2:
                 population[distinct[j]].diversity += (l * r)
 
     def createOffspringPopulation(self):
-        currentArchiveSize = self._currentArchiveSize
-        populationSize = self._populationSize
-        archivePopulation = self._archivePopulation
-        parentPopulation = self._parentPopulation
-        offspringPopulation = self._offspringPopulation
-        etaCross = self._etaCross
-        crossoverProbability = self._crossoverProbability
+        currentArchiveSize, populationSize = self._currentArchiveSize, self._populationSize
+        archivePopulation, parentPopulation, offspringPopulation = self._archivePopulation, self._parentPopulation,self._offspringPopulation
+        etaCross, crossoverProbability = self._etaCross, self._crossoverProbability
 
         for i in range(populationSize):
             r1 = -1
@@ -151,8 +147,7 @@ class Amga2:
         return sorted(set(elite), key=lambda e: population[e].fitness)
 
     def extractENNSPopulation(self, mixedPopulation, pool, desiredEliteSize):
-        poolSize = len(pool)
-        mixedSize = len(mixedPopulation)
+        poolSize, mixedSize = len(pool), len(mixedPopulation)
         filtered = [index for index in pool if mixedPopulation[index].diversity == float("inf")]
         numInf = len(filtered)
         if desiredEliteSize <= numInf:
@@ -187,14 +182,12 @@ class Amga2:
         while len(elite) > desiredEliteSize and idx < distArray_len:
             temp = distArray[idx]
             idx += 1
-            index1 = temp.index1
-            index2 = temp.index2
+            index1, index2 = temp.index1, temp.index2
 
             while (originalArray[index1] == -1 or originalArray[index2] == -1) and idx < distArray_len:
                 temp = distArray[idx]
                 idx += 1
-                index1 = temp.index1
-                index2 = temp.index2
+                index1, index2 = temp.index1, temp.index2
 
             if idx >= distArray_len:
                 break
@@ -247,8 +240,7 @@ class Amga2:
 
         while pool:
             index1 = pool.pop(0)
-            flag = -1
-            index2 = 0
+            flag, index2 = -1, 0
             while index2 < len(elite):
                 flag = checkDomination(population[index1], population[index2])
                 if flag == 1:
@@ -270,13 +262,11 @@ class Amga2:
 
     def fillBestPopulation(self, mixedPopulation, mixedLength, population, populationLength):
         pool = list(range(mixedLength))
-        elite = []
-        filled = []
+        elite, filled = [], []
         rank = 1
 
         assignInfiniteDiversity = self.assignInfiniteDiversity
-        extractBestRank = self.extractBestRank
-        extractENNSPopulation = self.extractENNSPopulation
+        extractBestRank, extractENNSPopulation = self.extractBestRank, self.extractENNSPopulation
 
         for index in pool:
             mixedPopulation[index].diversity = 0
@@ -311,13 +301,10 @@ class Amga2:
 
     def createParentPopulation(self):
         pool = list(range(self._currentArchiveSize))
-        elite = []
-        selectionPool = []
+        elite, selectionPool = [], []
 
-        rank = 1
-        populationSize = self._populationSize
-        archivePopulation = self._archivePopulation
-        parentPopulation = self._parentPopulation
+        rank, populationSize = 1, self._populationSize
+        archivePopulation, parentPopulation = self._archivePopulation, self._parentPopulation
         extractBestRank = self.extractBestRank
         while len(selectionPool) < populationSize:
             extractBestRank(archivePopulation, pool, elite)
@@ -334,10 +321,8 @@ class Amga2:
         self.fillDiversePopulation(archivePopulation, selectionPool, parentPopulation, j, populationSize - j)
 
     def mutateOffspringPopulation(self):
-        currentArchiveSize = self._currentArchiveSize
-        populationSize = self._populationSize
-        mutationProbability = self._mutationProbability
-        mutationSize = self._mutationSize
+        currentArchiveSize, populationSize = self._currentArchiveSize, self._populationSize
+        mutationProbability, mutationSize = self._mutationProbability, self._mutationSize
         offspringPopulation = self._offspringPopulation
         for i in range(populationSize):
             pMut = mutationProbability + (1.0 - mutationProbability) * (
@@ -345,11 +330,8 @@ class Amga2:
             offspringPopulation[i].mutation(mutationSize, pMut)
 
     def updateArchivePopulation(self):
-        currentArchiveSize = self._currentArchiveSize
-        populationSize = self._populationSize
-        archivePopulation = self._archivePopulation
-        combinedPopulation = self._combinedPopulation
-        offspringPopulation = self._offspringPopulation
+        currentArchiveSize, populationSize = self._currentArchiveSize, self._populationSize
+        archivePopulation, combinedPopulation, offspringPopulation = self._archivePopulation, self._combinedPopulation, self._offspringPopulation
         if (currentArchiveSize + populationSize) <= self._archiveSize:
             for j, i in enumerate(range(populationSize), start=currentArchiveSize):
                 archivePopulation[j] = offspringPopulation[i]
@@ -369,10 +351,8 @@ class Amga2:
             e.diversity = 0
 
     def finalizePopulation(self):
-        currentArchiveSize = self._currentArchiveSize
-        populationSize = self._populationSize
-        archivePopulation = self._archivePopulation
-        combinedPopulation = self._combinedPopulation
+        currentArchiveSize, populationSize = self._currentArchiveSize, self._populationSize
+        archivePopulation, combinedPopulation = self._archivePopulation, self._combinedPopulation
 
         elite = []
         pool = [i for i in range(currentArchiveSize) if archivePopulation[i].fitness >= 0]
@@ -398,29 +378,26 @@ class Amga2:
     def run(self, maxRepeat=9999, minFitness=0.999):
         self.initialize()
         self._currentArchiveSize = self._populationSize
-        createParentPopulation = self.createParentPopulation
-        createOffspringPopulation = self.createOffspringPopulation
-        mutateOffspringPopulation = self.mutateOffspringPopulation
-        updateArchivePopulation = self.updateArchivePopulation
+        createParentPopulation, createOffspringPopulation = self.createParentPopulation, self.createOffspringPopulation
+        mutateOffspringPopulation, updateArchivePopulation = self.mutateOffspringPopulation, self.updateArchivePopulation
         random.seed(round(time.time() * 1000))
 
         # Current generation
         currentGeneration = 0
 
-        repeat = 0
-        lastBestFit = 0.0
+        repeat, lastBestFit = 0, 0.0
 
         while 1:
             if currentGeneration > 0:
-                best = self.result
-                print("Fitness:", "{:f}\t".format(best.fitness), "Generation:", currentGeneration, end="\r")
+                bestFitness = self.result.fitness
+                print("Fitness:", "{:f}\t".format(bestFitness), "Generation:", currentGeneration, end="\r")
 
                 # algorithm has reached criteria?
-                if best.fitness > minFitness:
+                if bestFitness > minFitness:
                     self.finalizePopulation()
                     break
 
-                difference = abs(best.fitness - lastBestFit)
+                difference = abs(bestFitness - lastBestFit)
                 if difference <= 0.0000001:
                     repeat += 1
                 else:
