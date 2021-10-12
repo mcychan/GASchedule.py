@@ -164,7 +164,7 @@ class Amga2:
 
         for counter, index in enumerate(elite):
             indexArray[counter] = index
-            originalArray[indexArray[counter]] = counter
+            originalArray[index] = counter
 
         distArray = []
         for i in range(poolSize):

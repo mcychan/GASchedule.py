@@ -98,10 +98,10 @@ class Schedule:
         # make new code by combining parent codes
         first = randrange(2) == 0        
         
-        if first:
-            course_classes = list(classes.keys())
-            dur = course_class.Duration
-            for course_class in course_classes:                
+        for i in range(size):
+            if first:
+                course_class = course_classes[i]
+                dur = course_class.Duration
                 reservation = classes[course_class]
                 reservation_index = hash(reservation)
                 # insert class from first parent into new chromosome's class table
@@ -109,11 +109,9 @@ class Schedule:
                 # all time-space slots of class are copied
                 for slot in n_slots[reservation_index: reservation_index + dur]:
                     slot.append(course_class)
-        else:
-            parent_classes = parent.classes
-            parent_course_classes = list(parent.classes.keys())
-            dur = course_class.Duration
-            for course_class in parent_course_classes:                
+            else:
+                course_class = parent_course_classes[i]
+                dur = course_class.Duration
                 reservation = parent_classes[course_class]
                 reservation_index = hash(reservation)
                 # insert class from second parent into new chromosome's class table
@@ -122,10 +120,10 @@ class Schedule:
                 for slot in n_slots[reservation_index: reservation_index + dur]:
                     slot.append(course_class)
 
-        # crossover point
-        if cp[i]:
-            # change source chromosome
-            first = not first
+            # crossover point
+            if cp[i]:
+                # change source chromosome
+                first = not first
 
         n.calculateFitness()
 

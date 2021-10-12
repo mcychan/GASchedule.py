@@ -1,4 +1,4 @@
-import Constant
+from Constant import Constant
 
 
 class Reservation:
@@ -7,7 +7,7 @@ class Reservation:
         self.Day = day
         self.Time = time
         self.Room = room
-        self._index = self.Day * self.Nr * Constant.Constant.DAY_HOURS + self.Room * Constant.Constant.DAY_HOURS + self.Time
+        self._index = self.Day * self.Nr * Constant.DAY_HOURS + self.Room * Constant.DAY_HOURS + self.Time
 
     def __hash__(self) -> int:
         return self._index
