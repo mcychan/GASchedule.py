@@ -236,8 +236,8 @@ class Schedule:
             for j in range(dur):
                 # remove class hour from current time-space slot
                 cl = slots[reservation1_index + j]
-                clList = list(cl)
-                for cc1 in clList:
+                clTuple = tuple(cl)
+                for cc1 in clTuple:
                     cl.remove(cc1)
 
                 # move class hour to new time-space slot
