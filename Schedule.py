@@ -14,7 +14,7 @@ class Schedule:
 
         # Time-space slots, one entry represent one hour in one classroom
         slots_length = Constant.DAYS_NUM * Constant.DAY_HOURS * self._configuration.numberOfRooms
-        self._slots = [[] for _ in range(slots_length)]
+        self._slots = [deque() for _ in range(slots_length)]
 
         # Class table for chromosome
         # Used to determine first time-space slot used by class
@@ -143,9 +143,9 @@ class Schedule:
         new_chromosome = self.copy(self, True)
         new_chromosome_slots, new_chromosome_classes = new_chromosome._slots, new_chromosome._classes
         classes = self._classes
-        course_classes = list(classes.keys())
+        course_classes = tuple(classes.keys())
         parent_classes = parent.classes
-        parent_course_classes = list(parent.classes.keys())
+        parent_course_classes = tuple(parent.classes.keys())
         for i in range(size):
             if randrange(32768) % 100 > crossoverProbability or i == jrand:
                 course_class = course_classes[i]                
@@ -206,7 +206,7 @@ class Schedule:
         classes = self._classes
         # number of classes
         numberOfClasses = len(classes)
-        course_classes = list(classes.keys())
+        course_classes = tuple(classes.keys())
         configuration = self._configuration
         slots = self._slots
         nr = configuration.numberOfRooms
@@ -236,7 +236,8 @@ class Schedule:
             for j in range(dur):
                 # remove class hour from current time-space slot
                 cl = slots[reservation1_index + j]
-                for cc1 in cl:
+                clList = list(cl)
+                for cc1 in clList:
                     cl.remove(cc1)
 
                 # move class hour to new time-space slot
@@ -377,13 +378,12 @@ class Schedule:
         return result
 
     def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            classes = self._classes
-            for cc in classes.keys():
-                if classes[cc] != other.classes[cc]:
-                    return False
-        else:
+        if not isinstance(other, self.__class__):
             return False
+        classes = self._classes
+        for cc in classes.keys():
+            if classes[cc] != other.classes[cc]:
+                return False
             
     def __ne__(self, other):
         return not self.__eq__(other)
