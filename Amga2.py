@@ -3,7 +3,7 @@ import functools
 import random
 from collections import deque
 from random import randrange
-import time
+from time import time
 
 
 # Archive-based Micro Genetic Algorithm (AMGA2)
@@ -388,7 +388,7 @@ class Amga2:
         self._currentArchiveSize = self._populationSize
         createParentPopulation, createOffspringPopulation = self.createParentPopulation, self.createOffspringPopulation
         mutateOffspringPopulation, updateArchivePopulation = self.mutateOffspringPopulation, self.updateArchivePopulation
-        random.seed(round(time.time() * 1000))
+        random.seed(round(time() * 1000))
 
         # Current generation
         currentGeneration = 0
@@ -418,7 +418,7 @@ class Amga2:
             createOffspringPopulation()
             mutateOffspringPopulation()
             updateArchivePopulation()
-            random.seed(round(time.time() * 1000))
+            random.seed(round(time() * 1000))
             currentGeneration += 1
 
     def __str__(self):

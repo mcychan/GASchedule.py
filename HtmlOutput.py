@@ -1,10 +1,10 @@
-import Constant
+from Constant import Constant
 from collections import defaultdict
 
 
 class HtmlOutput:
-    ROOM_COLUMN_NUMBER = Constant.Constant.DAYS_NUM + 1
-    ROOM_ROW_NUMBER = Constant.Constant.DAY_HOURS + 1
+    ROOM_COLUMN_NUMBER = Constant.DAYS_NUM + 1
+    ROOM_ROW_NUMBER = Constant.DAY_HOURS + 1
     COLOR1 = "#319378"
     COLOR2 = "#CE0000"
     CRITERIAS = ('R', 'S', 'L', 'P', 'G')
@@ -83,7 +83,7 @@ class HtmlOutput:
                 time_table[key] = room_schedule
 
             room_schedule[dayId] = "".join(getCourseClass(cc, solution.criteria, ci))
-            ci += Constant.Constant.DAYS_NUM
+            ci += Constant.DAYS_NUM
 
         return time_table
 
