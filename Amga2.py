@@ -270,7 +270,7 @@ class Amga2:
 
     def fillBestPopulation(self, mixedPopulation, mixedLength, population, populationLength):
         pool = deque(range(mixedLength))
-        elite, filled = deque(), deque()
+        elite, filled = deque(), []
         rank = 1
 
         assignInfiniteDiversity = self.assignInfiniteDiversity
@@ -309,7 +309,7 @@ class Amga2:
 
     def createParentPopulation(self):
         pool = deque(range(self._currentArchiveSize))
-        elite, selectionPool = deque(), deque()
+        elite, selectionPool = [], deque()
 
         rank, populationSize = 1, self._populationSize
         archivePopulation, parentPopulation = self._archivePopulation, self._parentPopulation
@@ -362,7 +362,7 @@ class Amga2:
         currentArchiveSize, populationSize = self._currentArchiveSize, self._populationSize
         archivePopulation, combinedPopulation = self._archivePopulation, self._combinedPopulation
 
-        elite = deque()
+        elite = []
         pool = deque([i for i in range(currentArchiveSize) if archivePopulation[i].fitness >= 0])
 
         if pool:
@@ -374,7 +374,7 @@ class Amga2:
 
                 self.assignInfiniteDiversity(archivePopulation, elite)
                 self.extractENNSPopulation(archivePopulation, pool, populationSize)
-                elite = pool
+                elite = list(pool)
             self._currentArchiveSize = len(elite)
 
             for i, index in enumerate(elite):

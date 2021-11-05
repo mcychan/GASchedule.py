@@ -14,7 +14,7 @@ class Schedule:
 
         # Time-space slots, one entry represent one hour in one classroom
         slots_length = Constant.DAYS_NUM * Constant.DAY_HOURS * self._configuration.numberOfRooms
-        self._slots = [deque() for _ in range(slots_length)]
+        self._slots = [[] for _ in range(slots_length)]
 
         # Class table for chromosome
         # Used to determine first time-space slot used by class
@@ -380,9 +380,9 @@ class Schedule:
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
-        classes = self._classes
+        classes, otherClasses = self._classes, other.classes
         for cc in classes.keys():
-            if classes[cc] != other.classes[cc]:
+            if classes[cc] != otherClasses[cc]:
                 return False
             
     def __ne__(self, other):

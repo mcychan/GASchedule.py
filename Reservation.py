@@ -13,10 +13,9 @@ class Reservation:
         return self._index
 
     def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return hash(self) == hash(other)
-        else:
+        if not isinstance(other, self.__class__):
             return False
+        return self._index == other._index
             
     def __ne__(self, other):
         return not self.__eq__(other)
