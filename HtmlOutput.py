@@ -162,7 +162,7 @@ class HtmlOutput:
         sb.append("</tr>\n")
         sb.append("<tr>\n")
         sb.append("<th style='border: .1em solid black; padding: .25em'>Lab: ")
-        sb.append(room.Lab)
+        sb.append("Yes" if room.Lab else "No")
         sb.append("</th>\n")
         sb.append("<th style='border: .1em solid black; padding: .25em'>Seats: ")
         sb.append(room.NumberOfSeats)
