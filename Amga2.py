@@ -381,6 +381,12 @@ class Amga2:
                 combinedPopulation[i] = archivePopulation[index]
         else:
             self._currentArchiveSize = 0
+            
+    def reform(self):
+        if self._crossoverProbability < 95:
+			self._crossoverProbability += 1.0;
+		elif self._mutationProbability < 30:
+			self._mutationProbability += 1.0;
 
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
@@ -412,7 +418,7 @@ class Amga2:
                     repeat = 0
 
                 if repeat > (maxRepeat / 100):
-                    self._mutationProbability += 1
+                    self.reform()
                 lastBestFit = best.fitness
 
             createParentPopulation()
