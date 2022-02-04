@@ -412,7 +412,7 @@ class Amga2:
                     repeat = 0
 
                 if repeat > (maxRepeat / 100):
-                    self._crossoverProbability += 1
+                    self._mutationProbability += 1
                 lastBestFit = best.fitness
 
             createParentPopulation()
