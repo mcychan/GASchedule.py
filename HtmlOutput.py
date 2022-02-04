@@ -97,11 +97,11 @@ class HtmlOutput:
 
         sb = []
         if rowspan > 1:
-            sb.append("<td style='border: 1px solid black; padding: 5px' rowspan='")
+            sb.append("<td style='border: .1em solid black; padding: .25em' rowspan='")
             sb.append(rowspan)
             sb.append("'>")
         else:
-            sb.append("<td style='border: 1px solid black; padding: 5px'>")
+            sb.append("<td style='border: .1em solid black; padding: .25em'>")
 
         sb.append(content)
         sb.append("</td>")
@@ -135,7 +135,7 @@ class HtmlOutput:
                     sb.append("<tr>")
                     for dayId in range(HtmlOutput.ROOM_COLUMN_NUMBER):
                         if dayId == 0:
-                            sb.append("<th style='border: 1px solid black; padding: 5px' scope='row' colspan='2'>")
+                            sb.append("<th style='border: .1em solid black; padding: .25em' scope='row' colspan='2'>")
                             sb.append(HtmlOutput.PERIODS[periodId])
                             sb.append("</th>\n")
                             continue
@@ -154,17 +154,17 @@ class HtmlOutput:
 
     @staticmethod
     def getTableHeader(room):
-        sb = ["<tr><th style='border: 1px solid black' scope='col' colspan='2'>Room: ", room.Name, "</th>\n"]
+        sb = ["<tr><th style='border: .1em solid black' scope='col' colspan='2'>Room: ", room.Name, "</th>\n"]
         for weekDay in HtmlOutput.WEEK_DAYS:
-            sb.append("<th style='border: 1px solid black; padding: 5px; width: 15%' scope='col' rowspan='2'>")
+            sb.append("<th style='border: .1em solid black; padding: .25em; width: 15%' scope='col' rowspan='2'>")
             sb.append(weekDay)
             sb.append("</th>\n")
         sb.append("</tr>\n")
         sb.append("<tr>\n")
-        sb.append("<th style='border: 1px solid black; padding: 5px'>Lab: ")
+        sb.append("<th style='border: .1em solid black; padding: .25em'>Lab: ")
         sb.append(room.Lab)
         sb.append("</th>\n")
-        sb.append("<th style='border: 1px solid black; padding: 5px'>Seats: ")
+        sb.append("<th style='border: .1em solid black; padding: .25em'>Seats: ")
         sb.append(room.NumberOfSeats)
         sb.append("</th>\n")
         sb.append("</tr>\n")
