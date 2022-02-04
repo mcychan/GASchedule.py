@@ -272,7 +272,7 @@ class Schedule:
             # check for room overlapping of classes
             reservation_index = hash(reservation)
             cls = slots[reservation_index: reservation_index + dur]
-            ro = any(filter(lambda slot: len(slot) > 1, cls))
+            ro = any(True for slot in cls if len(slot) > 1)
 
             # on room overlapping
             score = 0 if ro else score + 1

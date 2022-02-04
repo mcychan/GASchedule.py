@@ -29,7 +29,7 @@ class CourseClass:
 
     # Returns TRUE if another class has one or overlapping student groups.
     def groupsOverlap(self, c):
-        return any(grp in self.Groups for grp in c.Groups)
+        return any(True for grp in self.Groups if grp in c.Groups)
 
     # Returns TRUE if another class has same professor.
     def professorOverlaps(self, c):
