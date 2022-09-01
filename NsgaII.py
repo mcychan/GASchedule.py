@@ -1,7 +1,7 @@
 import Schedule
 import random
 import sys
-import time
+from time import time
 
 
 # NSGA II
@@ -128,6 +128,13 @@ class NsgaII:
             # add new chromosome to population
             population[i] = prototype.makeNewFromPrototype()
 
+    def reform(self):
+        random.seed(round(time() * 1000))
+        if self._crossoverProbability < 95:
+            self._crossoverProbability += 1.0;
+        elif self._mutationProbability < 30:
+            self._mutationProbability += 1.0;
+
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
         mutationSize = self._mutationSize        
@@ -138,7 +145,7 @@ class NsgaII:
         population = populationSize * [None]
 
         self.initialize(population)
-        random.seed(round(time.time() * 1000))
+        random.seed(round(time() * 1000))
 
         # Current generation
         currentGeneration = 0
@@ -146,7 +153,7 @@ class NsgaII:
         repeat = 0
         lastBestFit = 0.0
 
-        while 1:            
+        while 1:
             if currentGeneration > 0:
                 best = self.result
                 print("Fitness:", "{:f}\t".format(best.fitness), "Generation:", currentGeneration, end="\r")
@@ -162,7 +169,7 @@ class NsgaII:
                     repeat = 0
 
                 if repeat > (maxRepeat / 100):
-                    self._crossoverProbability += 1
+                    self.reform()
 
             # crossover
             offspring = self.replacement(population)
@@ -193,7 +200,6 @@ class NsgaII:
                 self._chromosomes = selection(newBestFront, totalChromosome)
                 lastBestFit = best.fitness
 
-            random.seed(round(time.time() * 1000))
             currentGeneration += 1
             
     def __str__(self):

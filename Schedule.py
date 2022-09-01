@@ -82,6 +82,10 @@ class Schedule:
         n_classes, n_slots = n._classes, n._slots
 
         classes = self._classes
+        course_classes = tuple(classes.keys())
+        parent_classes = parent.classes
+        parent_course_classes = tuple(parent.classes.keys())
+
         # number of classes
         size = len(classes)
 
@@ -96,7 +100,7 @@ class Schedule:
                     cp[p] = check_point = True
 
         # make new code by combining parent codes
-        first = randrange(2) == 0        
+        first = randrange(2) == 0
         
         for i in range(size):
             if first:
@@ -107,8 +111,8 @@ class Schedule:
                 # insert class from first parent into new chromosome's class table
                 n_classes[course_class] = reservation
                 # all time-space slots of class are copied
-                for i in range(reservation_index, reservation_index + dur):
-                    n_slots[i].append(course_class)
+                for j in range(reservation_index, reservation_index + dur):
+                    n_slots[j].append(course_class)
             else:
                 course_class = parent_course_classes[i]
                 dur = course_class.Duration
@@ -117,8 +121,8 @@ class Schedule:
                 # insert class from second parent into new chromosome's class table
                 n_classes[course_class] = reservation
                 # all time-space slots of class are copied
-                for i in range(reservation_index, reservation_index + dur):
-                    n_slots[i].append(course_class)
+                for j in range(reservation_index, reservation_index + dur):
+                    n_slots[j].append(course_class)
 
             # crossover point
             if cp[i]:
@@ -148,7 +152,7 @@ class Schedule:
         parent_course_classes = tuple(parent.classes.keys())
         for i in range(size):
             if randrange(32768) % 100 > crossoverProbability or i == jrand:
-                course_class = course_classes[i]                
+                course_class = course_classes[i]
                 reservation1, reservation2, reservation3 = r1.classes[course_class], r2.classes[course_class], r3.classes[course_class]
                 
                 dur = course_class.Duration
@@ -174,8 +178,8 @@ class Schedule:
                 reservation_index = hash(reservation)
 
                 # fill time-space slots, for each hour of class
-                for i in range(reservation_index, reservation_index + dur):
-                    new_chromosome_slots[i].append(course_class)
+                for j in range(reservation_index, reservation_index + dur):
+                    new_chromosome_slots[j].append(course_class)
 
                 # insert in class table of chromosome
                 new_chromosome_classes[course_class] = reservation
@@ -186,8 +190,8 @@ class Schedule:
                 reservation_index = hash(reservation)
                 
                 # all time-space slots of class are copied
-                for i in range(reservation_index, reservation_index + dur):
-                    new_chromosome_slots[i].append(course_class)
+                for j in range(reservation_index, reservation_index + dur):
+                    new_chromosome_slots[j].append(course_class)
                 
                 # insert class from second parent into new chromosome's class table
                 new_chromosome_classes[course_class] = reservation

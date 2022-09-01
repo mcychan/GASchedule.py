@@ -1,7 +1,7 @@
 import Schedule
 import random
 from random import randrange
-import time
+from time import time
 
 
 # Genetic algorithm
@@ -150,7 +150,7 @@ class GeneticAlgorithm:
         length_chromosomes = len(self._chromosomes)
 
         self.initialize(self._chromosomes)
-        random.seed(round(time.time() * 1000))
+        random.seed(round(time() * 1000))
 
         # Current generation
         currentGeneration = 0
@@ -173,13 +173,13 @@ class GeneticAlgorithm:
                 repeat = 0
 
             if repeat > (maxRepeat / 100):
+                random.seed(round(time() * 1000))
                 self.set_replace_by_generation(self._replaceByGeneration * 3)
                 self._crossoverProbability += 1
 
             self.replacement(self._chromosomes, self._replaceByGeneration)
 
             lastBestFit = best.fitness
-            random.seed(round(time.time() * 1000))
             currentGeneration += 1
 
     def __str__(self):

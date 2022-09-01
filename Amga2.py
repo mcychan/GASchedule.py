@@ -381,8 +381,9 @@ class Amga2:
                 combinedPopulation[i] = archivePopulation[index]
         else:
             self._currentArchiveSize = 0
-            
+
     def reform(self):
+        random.seed(round(time() * 1000))
         if self._crossoverProbability < 95:
             self._crossoverProbability += 1.0;
         elif self._mutationProbability < 30:
@@ -425,7 +426,6 @@ class Amga2:
             createOffspringPopulation()
             mutateOffspringPopulation()
             updateArchivePopulation()
-            random.seed(round(time() * 1000))
             currentGeneration += 1
 
     def __str__(self):
