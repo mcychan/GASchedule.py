@@ -68,14 +68,23 @@ class NsgaII:
 
     # calculate crowding distance function
     def calculateCrowdingDistance(self, front, totalChromosome):
-        distance = {m: 0.0 for m in front}
-        obj = {m: totalChromosome[m].fitness for m in front}
+        distance, obj, array = {}, {}, {}
+        for key in front:
+            distance[key] = 0
+            obj[key] = totalChromosome[key].fitness
+            array[key] = totalChromosome[key]
+        
         sorted_keys = sorted(obj, key=obj.get)
         distance[sorted_keys[0]] = distance[sorted_keys[len(front) - 1]] = sys.float_info.max
-        values_length = len(set(obj.values()))
-        if values_length > 1:
-            for i in range(1, len(front) - 1):
-                distance[sorted_keys[i]] += (obj[sorted_keys[i + 1]] - obj[sorted_keys[i - 1]]) / (obj[sorted_keys[len(front) - 1]] - obj[sorted_keys[0]])
+
+        size = len(front)
+        if size > 1:
+            for i in range(1, size - 1):
+                diff = array[sorted_keys[i + 1]].getDifference(array[sorted_keys[i - 1]])
+                diff2 = array[sorted_keys[size - 1]].getDifference(array[sorted_keys[0]])
+                if diff2 > 0:
+                    diff /= diff2
+                distance[sorted_keys[i]] += diff
 
         return distance
 

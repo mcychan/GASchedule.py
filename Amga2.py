@@ -103,24 +103,25 @@ class Amga2:
         for e in distinct:
             population[e].diversity = 0.0
 
-        val = population[distinct[size - 1]].fitness - population[distinct[0]].fitness
+        val = population[distinct[size - 1]].getDifference(population[distinct[0]])
         if val == 0:
             return
 
         for j in range(size):
             if j == 0:
+                diff = population[distinct[j + 1]].getDifference(population[distinct[j]])
                 hashArray = (0.0, population[distinct[j]].fitness, population[distinct[j + 1]].fitness)
-                r = (hashArray[2] - hashArray[1]) / val
+                r = diff / val
                 population[distinct[j]].diversity += (r * r)
             elif j == size - 1:
-                hashArray = (population[distinct[j - 1]].fitness, population[distinct[j]].fitness)
-                l = (hashArray[1] - hashArray[0]) / val
+                diff = population[distinct[j]].getDifference(population[distinct[j - 1]])
+                l = diff / val
                 population[distinct[j]].diversity += (l * l)
             else:
-                hashArray = (population[distinct[j - 1]].fitness, population[distinct[j]].fitness,
-                             population[distinct[j + 1]].fitness)
-                l = (hashArray[1] - hashArray[0]) / val
-                r = (hashArray[2] - hashArray[1]) / val
+                diff = population[distinct[j]].getDifference(population[distinct[j - 1]])
+                l = diff / val
+                diff = population[distinct[j + 1]].getDifference(population[distinct[j]])
+                r = diff / val
                 population[distinct[j]].diversity += (l * r)
 
     def createOffspringPopulation(self):
@@ -180,8 +181,8 @@ class Amga2:
                 distMatrix = Amga2.DistanceMatrix()
                 distMatrix.index1 = indexArray[i]
                 distMatrix.index2 = indexArray[j]
-                distance[j][i] = distance[i][j] = distMatrix.distance = abs(
-                    mixedPopulation[distMatrix.index1].fitness - mixedPopulation[distMatrix.index2].fitness)
+                distMatrix.distance = mixedPopulation[distMatrix.index1].getDifference(mixedPopulation[distMatrix.index2])
+                distance[j][i] = distance[i][j] = distMatrix.distance
                 distArray.append(distMatrix)
 
         distArray.sort()

@@ -21,7 +21,7 @@ class Schedule:
         self._classes = defaultdict(Reservation)
 
         # Flags of class requirements satisfaction
-        self._criteria = (self._configuration.numberOfCourseClasses * Constant.DAYS_NUM) * [False]
+        self._criteria = (self._configuration.numberOfCourseClasses * Constant.CRITERIA_NUM) * [False]
         
         self._diversity = 0.0
         self._rank = 0
@@ -332,6 +332,14 @@ class Schedule:
         # calculate fitness value based on score
         self._fitness = score / (configuration.numberOfCourseClasses * DAYS_NUM)
 
+    def getDifference(self, other):
+        val = 0
+        size = min(len(self._criteria), len(other.criteria))
+        for i in range(size):
+            if self._criteria[i] ^ other.criteria[i]:
+                val += 1
+        return val
+    
     # Returns fitness value of chromosome
     @property
     def fitness(self):
