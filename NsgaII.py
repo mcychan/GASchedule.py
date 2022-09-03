@@ -78,10 +78,9 @@ class NsgaII:
         distance[sorted_keys[0]] = distance[sorted_keys[len(front) - 1]] = sys.float_info.max
 
         size = len(front)
-        if size > 1:
+        if size > 2:
             diff2 = array[sorted_keys[size - 1]].getDifference(array[sorted_keys[0]])
             if diff2 <= 0:
-                distance[sorted_keys[0]] = distance[sorted_keys[len(front) - 1]] = 0
                 return distance
                 
             for i in range(1, size - 1):
