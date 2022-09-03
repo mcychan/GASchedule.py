@@ -83,7 +83,7 @@ class HtmlOutput:
                 time_table[key] = room_schedule
 
             room_schedule[dayId] = "".join(getCourseClass(cc, solution.criteria, ci))
-            ci += Constant.DAYS_NUM
+            ci += length_CRITERIAS
 
         return time_table
 

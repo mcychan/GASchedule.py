@@ -327,7 +327,7 @@ class Schedule:
             score = 0 if go else score + 1
 
             criteria[ci + 4] = not go
-            ci += DAYS_NUM
+            ci += Constant.CRITERIA_NUM
 
         # calculate fitness value based on score
         self._fitness = score / (configuration.numberOfCourseClasses * DAYS_NUM)
