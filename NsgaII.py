@@ -74,14 +74,18 @@ class NsgaII:
             obj[key] = totalChromosome[key].fitness
             array[key] = totalChromosome[key]
         
+        result = {}
+        for key, value in obj.items():
+            if value not in result.values():
+                result[key] = value
+        obj = result
+        
         sorted_keys = sorted(obj, key=obj.get)
-        distance[sorted_keys[0]] = distance[sorted_keys[len(front) - 1]] = sys.float_info.max
-
-        size = len(front)
-        if size > 2:
+        size = len(obj)
+        distance[sorted_keys[0]] = distance[sorted_keys[size - 1]] = sys.float_info.max
+        
+        if size > 1:
             diff2 = array[sorted_keys[size - 1]].getDifference(array[sorted_keys[0]])
-            if diff2 <= 0:
-                return distance
                 
             for i in range(1, size - 1):
                 diff = array[sorted_keys[i + 1]].getDifference(array[sorted_keys[i - 1]])
