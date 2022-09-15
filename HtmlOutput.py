@@ -1,4 +1,4 @@
-from Constant import Constant
+from model.Constant import Constant
 from collections import defaultdict
 
 

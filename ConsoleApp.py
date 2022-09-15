@@ -6,11 +6,11 @@ import tempfile
 import time
 import traceback
 
-from Configuration import Configuration
-# from GeneticAlgorithm import GeneticAlgorithm
-# from NsgaII import NsgaII
-# from Ngra import Ngra
-from Amga2 import Amga2
+from model.Configuration import Configuration
+# from algorithm.GeneticAlgorithm import GeneticAlgorithm
+# from algorithm.NsgaII import NsgaII
+from algorithm.Ngra import Ngra
+from algorithm.Amga2 import Amga2
 from HtmlOutput import HtmlOutput
 
 
@@ -23,9 +23,9 @@ def main(file_name):
         configuration.parseFile(target_file)
 
         # alg = GeneticAlgorithm(configuration)
-        alg = Amga2(configuration)
-        print("GaSchedule Version 1.2.0 . Making a Class Schedule Using", alg, ".\n")
-        print("Copyright (C) 2021 Miller Cy Chan.\n")
+        alg = Ngra(configuration)
+        print("GaSchedule Version 1.2.1 . Making a Class Schedule Using", alg, ".\n")
+        print("Copyright (C) 2022 Miller Cy Chan.\n")
         alg.run()
         html_result = HtmlOutput.getResult(alg.result)
 
