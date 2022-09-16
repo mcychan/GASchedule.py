@@ -2,7 +2,6 @@ from .NsgaII import NsgaII
 from random import randrange
 
 import numpy as np
-import math
 import random
 
 
@@ -83,9 +82,9 @@ class Hgasso(NsgaII):
         for i in range(populationSize):
             dim = len(velocity[i])
             for j in range(dim):
-                velocity[i][j] = random.random() * math.log10(np.random.uniform(7.0, 14.0)) * velocity[i][j] + \
-                math.log10(np.random.uniform(7.0, 14.0)) * math.log10(np.random.uniform(35.5, 38.5)) * (sBest[i][j] - current_position[i][j]) + \
-                math.log10(np.random.uniform(7.0, 14.0)) * math.log10(np.random.uniform(35.5, 38.5)) * (sgBest[j] - current_position[i][j])
+                velocity[i][j] = random.random() * np.log10(np.random.uniform(7.0, 14.0)) * velocity[i][j] + \
+                np.log10(np.random.uniform(7.0, 14.0)) * np.log10(np.random.uniform(35.5, 38.5)) * (sBest[i][j] - current_position[i][j]) + \
+                np.log10(np.random.uniform(7.0, 14.0)) * np.log10(np.random.uniform(35.5, 38.5)) * (sgBest[j] - current_position[i][j])
 
         current_position += velocity
 
