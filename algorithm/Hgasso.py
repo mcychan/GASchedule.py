@@ -24,25 +24,22 @@ class Hgasso(NsgaII):
     def replacement(self, population):
         populationSize = len(population)
         start = int(populationSize * self._threshold)
-        current_position = self._current_position
-        sBest, sgBest = self._sBest, self._sgBest
-        sBestScore, sgBestScore = self._sBestScore, self._sgBestScore
 
         for i in range(populationSize):
             fitness = population[i].fitness
             if i < start:
-                population[i].extractPositions(current_position[i])
-            elif fitness < sBestScore[i]:
-                population[i].updatePositions(current_position[i])
+                population[i].extractPositions(self._current_position[i])
+            elif fitness < self._sBestScore[i]:
+                population[i].updatePositions(self._current_position[i])
                 fitness = population[i].fitness
 
-            if fitness > sBestScore[i]:
-                sBestScore[i] = fitness
-                sBest[i] = current_position[i]
+            if fitness > self._sBestScore[i]:
+                self._sBestScore[i] = fitness
+                self._sBest[i] = self._current_position[i]
 
-            if fitness > sgBestScore:
-                sgBestScore = fitness
-                sgBest = current_position[i]
+            if fitness > self._sgBestScore:
+                self._sgBestScore = fitness
+                self._sgBest = self._current_position[i]
 
         self.updateVelocities(population)
         return super().replacement(population)
@@ -50,7 +47,6 @@ class Hgasso(NsgaII):
     def initialize(self, population):
         prototype = self._prototype
         size = 0
-        current_position, velocity = self._current_position, self._velocity
         populationSize = len(population)
         for i in range(populationSize):
             positions = []
@@ -60,30 +56,27 @@ class Hgasso(NsgaII):
                 size = len(positions)
                 self._current_position = np.zeros((populationSize, size), dtype=float)
                 self._velocity = np.zeros((populationSize, size), dtype=float)
-                current_position, velocity = self._current_position, self._velocity
 
                 self._sBest = np.zeros((populationSize, size), dtype=float)
                 self._sgBest = np.zeros(populationSize, dtype=float)
                 self._sBestScore = np.zeros(populationSize, dtype=float)
 
             self._sBestScore[i] = population[i].fitness
-            current_position[i] = positions
-            velocity[i] = np.random.uniform(-.6464, .7157, size) / 3.0
+            self._current_position[i] = positions
+            self._velocity[i] = np.random.uniform(-.6464, .7157, size) / 3.0
 
     def updateVelocities(self, population):
-        sBest, sgBest = self._sBest, self._sgBest
-        current_position, velocity = self._current_position, self._velocity
         populationSize = len(population)
         for i in range(populationSize):
-            dim = len(velocity[i])
+            dim = len(self._velocity[i])
             for j in range(dim):
-                velocity[i][j] = np.random.random() * np.log10(np.random.uniform(7.0, 14.0)) * velocity[i][j] + \
+                self._velocity[i][j] = np.random.random() * np.log10(np.random.uniform(7.0, 14.0)) * self._velocity[i][j] + \
                                  np.log10(np.random.uniform(7.0, 14.0)) * np.log10(np.random.uniform(35.5, 38.5)) * (
-                                             sBest[i][j] - current_position[i][j]) + \
+                                             self._sBest[i][j] - self._current_position[i][j]) + \
                                  np.log10(np.random.uniform(7.0, 14.0)) * np.log10(np.random.uniform(35.5, 38.5)) * (
-                                             sgBest[j] - current_position[i][j])
+                                             self._sgBest[j] - self._current_position[i][j])
 
-        current_position += velocity
+        self._current_position += self._velocity
 
     def __str__(self):
         return "Hybrid Genetic Algorithm and Sperm Swarm Optimization (HGASSO)"
