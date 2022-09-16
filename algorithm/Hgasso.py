@@ -1,5 +1,7 @@
 from .NsgaII import NsgaII
 from random import randrange
+
+import numpy as np
 import math
 import random
 
@@ -60,18 +62,18 @@ class Hgasso(NsgaII):
             population[i] = prototype.makeNewFromPrototype(positions)
             if i < 1:
                 size = len(positions)
-                self._current_position = [[0] * size for _ in range(populationSize)]
-                self._velocity = [[0] * size for _ in range(populationSize)]
+                self._current_position = np.zeros((populationSize, size), dtype=float)
+                self._velocity = np.zeros((populationSize, size), dtype=float)
                 current_position, velocity = self._current_position, self._velocity
 
-                self._sBest = [[0] * size for _ in range(populationSize)]
-                self._sgBest = populationSize * [0]
-                self._sBestScore = populationSize * [0]
+                self._sBest = np.zeros((populationSize, size), dtype=float)
+                self._sgBest = np.zeros(populationSize, dtype=float)
+                self._sBestScore = np.zeros(populationSize, dtype=float)
 
             self._sBestScore[i] = population[i].fitness
-            for j in range(size):
-                current_position[i][j] = positions[j]
-                velocity[i][j] = float(random.uniform(-.6464, .7157) / 3.0)
+            current_position[i] = positions
+            velocity[i] = np.random.uniform(-.6464, .7157, size)
+            velocity[i] /= 3.0
 
 
     def updateVelocities(self, population):
@@ -81,11 +83,10 @@ class Hgasso(NsgaII):
         for i in range(populationSize):
             dim = len(velocity[i])
             for j in range(dim):
-                velocity[i][j] = float(random.random() * math.log10(random.uniform(7.0, 14.0)) * velocity[i][j] + \
-                math.log10(random.uniform(7.0, 14.0)) * math.log10(random.uniform(35.5, 38.5)) * (sBest[i][j] - current_position[i][j]) + \
-                math.log10(random.uniform(7.0, 14.0)) * math.log10(random.uniform(35.5, 38.5)) * (sgBest[j] - current_position[i][j]))
-
-                current_position[i][j] += velocity[i][j]
+                velocity[i][j] = float(random.random() * math.log10(np.random.uniform(7.0, 14.0)) * velocity[i][j] + \
+                math.log10(np.random.uniform(7.0, 14.0)) * math.log10(np.random.uniform(35.5, 38.5)) * (sBest[i][j] - current_position[i][j]) + \
+                math.log10(np.random.uniform(7.0, 14.0)) * math.log10(np.random.uniform(35.5, 38.5)) * (sgBest[j] - current_position[i][j]))
+        current_position += velocity
 
     def __str__(self):
         return "Hybrid Genetic Algorithm and Sperm Swarm Optimization (HGASSO)"
