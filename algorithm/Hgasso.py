@@ -35,11 +35,11 @@ class Hgasso(NsgaII):
 
             if fitness > self._sBestScore[i]:
                 self._sBestScore[i] = fitness
-                self._sBest[i] = self._current_position[i]
+                self._sBest[i] = np.copy(self._current_position[i])
 
             if fitness > self._sgBestScore:
                 self._sgBestScore = fitness
-                self._sgBest = self._current_position[i]
+                self._sgBest = np.copy(self._current_position[i])
 
         self.updateVelocities(population)
         return super().replacement(population)
@@ -67,7 +67,8 @@ class Hgasso(NsgaII):
 
     def updateVelocities(self, population):
         populationSize = len(population)
-        for i in range(populationSize):
+        start = int(populationSize * self._threshold)
+        for i in range(start, populationSize):
             dim = len(self._velocity[i])
             for j in range(dim):
                 self._velocity[i][j] = np.random.random() * np.log10(np.random.uniform(7.0, 14.0)) * self._velocity[i][j] + \
@@ -76,7 +77,7 @@ class Hgasso(NsgaII):
                                  np.log10(np.random.uniform(7.0, 14.0)) * np.log10(np.random.uniform(35.5, 38.5)) * (
                                              self._sgBest[j] - self._current_position[i][j])
 
-        self._current_position += self._velocity
+                self._current_position[i][j] += self._velocity[i][j]
 
     def __str__(self):
         return "Hybrid Genetic Algorithm and Sperm Swarm Optimization (HGASSO)"
