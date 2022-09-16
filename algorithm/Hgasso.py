@@ -60,11 +60,11 @@ class Hgasso(NsgaII):
             population[i] = prototype.makeNewFromPrototype(positions)
             if i < 1:
                 size = len(positions)
-                self._current_position = [[0] * size for j in range(populationSize)]
-                self._velocity = [[0] * size for j in range(populationSize)]
+                self._current_position = [[0] * size for _ in range(populationSize)]
+                self._velocity = [[0] * size for _ in range(populationSize)]
                 current_position, velocity = self._current_position, self._velocity
-				
-                self._sBest = [[0] * size for j in range(populationSize)]
+
+                self._sBest = [[0] * size for _ in range(populationSize)]
                 self._sgBest = populationSize * [0]
                 self._sBestScore = populationSize * [0]
 
