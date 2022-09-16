@@ -1,8 +1,6 @@
 from .NsgaII import NsgaII
-from random import randrange
 
 import numpy as np
-import random
 
 
 # Shehadeh, Hisham & Mustafa, Hossam & Tubishat, Mohammad. (2022).
@@ -16,12 +14,12 @@ class Hgasso(NsgaII):
     # Initializes Hybrid Genetic Algorithm and Sperm Swarm Optimization
     def __init__(self, configuration, numberOfCrossoverPoints=2, mutationSize=2, crossoverProbability=80,
                  mutationProbability=3):
-        NsgaII.__init__(self, configuration, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
+        NsgaII.__init__(self, configuration, numberOfCrossoverPoints, mutationSize, crossoverProbability,
+                        mutationProbability)
         self._threshold = .5
-        self._sBestScore, self._sgBestScore = 0, 0
+        self._sBestScore, self._sgBestScore = [], 0
         self._sBest, self._sgBest = [], []
         self._current_position, self._velocity = [], []
-
 
     def replacement(self, population):
         populationSize = len(population)
@@ -49,7 +47,6 @@ class Hgasso(NsgaII):
         self.updateVelocities(population)
         return super().replacement(population)
 
-
     def initialize(self, population):
         prototype = self._prototype
         size = 0
@@ -71,9 +68,7 @@ class Hgasso(NsgaII):
 
             self._sBestScore[i] = population[i].fitness
             current_position[i] = positions
-            velocity[i] = np.random.uniform(-.6464, .7157, size)
-            velocity[i] /= 3.0
-
+            velocity[i] = np.random.uniform(-.6464, .7157, size) / 3.0
 
     def updateVelocities(self, population):
         sBest, sgBest = self._sBest, self._sgBest
@@ -82,12 +77,13 @@ class Hgasso(NsgaII):
         for i in range(populationSize):
             dim = len(velocity[i])
             for j in range(dim):
-                velocity[i][j] = random.random() * np.log10(np.random.uniform(7.0, 14.0)) * velocity[i][j] + \
-                np.log10(np.random.uniform(7.0, 14.0)) * np.log10(np.random.uniform(35.5, 38.5)) * (sBest[i][j] - current_position[i][j]) + \
-                np.log10(np.random.uniform(7.0, 14.0)) * np.log10(np.random.uniform(35.5, 38.5)) * (sgBest[j] - current_position[i][j])
+                velocity[i][j] = np.random.random() * np.log10(np.random.uniform(7.0, 14.0)) * velocity[i][j] + \
+                                 np.log10(np.random.uniform(7.0, 14.0)) * np.log10(np.random.uniform(35.5, 38.5)) * (
+                                             sBest[i][j] - current_position[i][j]) + \
+                                 np.log10(np.random.uniform(7.0, 14.0)) * np.log10(np.random.uniform(35.5, 38.5)) * (
+                                             sgBest[j] - current_position[i][j])
 
         current_position += velocity
 
     def __str__(self):
         return "Hybrid Genetic Algorithm and Sperm Swarm Optimization (HGASSO)"
-             
