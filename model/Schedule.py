@@ -51,7 +51,7 @@ class Schedule:
         # place classes at random position
         classes = self._configuration.courseClasses
         nr = self._configuration.numberOfRooms
-        DAYS_NUM, DAY_HOURS = Constant.DAYS_NUM, Constant.DAY_HOURS + 1
+        DAYS_NUM, DAY_HOURS = Constant.DAYS_NUM, Constant.DAY_HOURS
         for c in classes:
             # determine random position of class
             dur = c.Duration
@@ -347,7 +347,40 @@ class Schedule:
             if self._criteria[i] ^ other.criteria[i]:
                 val += 1
         return val
-    
+
+
+    def extractPositions(self, positions):
+        i = 0
+        items = self._classes.items()
+        for cc, reservation in items:
+            positions[i] = reservation.Day
+            i += 1
+            positions[i] = reservation.Time
+            i += 1
+            positions[i] = reservation.Room
+            i += 1
+
+
+    def updatePositions(self, positions):
+        DAYS_NUM, DAY_HOURS = Constant.DAYS_NUM, Constant.DAY_HOURS
+        nr = self._configuration.numberOfRooms
+        i = 0
+        classes = self._classes
+        for cc in classes.keys():
+            dur = cc.Duration
+            day = int(abs(positions[i] % DAYS_NUM))
+            i += 1
+            room = int(abs(positions[i] % nr))
+            i += 1
+            time = int(abs(positions[i] % (DAY_HOURS - dur)))
+            i += 1
+
+            reservation2 = Reservation(nr, day, time, room)
+            self.repair(cc, classes[cc], reservation2)
+
+        self.calculateFitness()
+
+
     # Returns fitness value of chromosome
     @property
     def fitness(self):
