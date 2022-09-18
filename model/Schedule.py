@@ -365,8 +365,8 @@ class Schedule:
         DAYS_NUM, DAY_HOURS = Constant.DAYS_NUM, Constant.DAY_HOURS
         nr = self._configuration.numberOfRooms
         i = 0
-        classes = self._classes
-        for cc in classes.keys():
+        items = self._classes.items()
+        for cc, reservation1 in items:
             dur = cc.Duration
             day = int(abs(positions[i] % DAYS_NUM))
             i += 1
@@ -376,7 +376,7 @@ class Schedule:
             i += 1
 
             reservation2 = Reservation(nr, day, time, room)
-            self.repair(cc, classes[cc], reservation2)
+            self.repair(cc, reservation1, reservation2)
 
         self.calculateFitness()
 
