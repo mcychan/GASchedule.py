@@ -68,8 +68,9 @@ class NsgaII:
                         Q.add(q)
             i += 1
             front.append(Q)
-        
-        return front[0: len(front) - 1]
+
+        front.pop()
+        return front
 
     # calculate crowding distance function
     def calculateCrowdingDistance(self, front, totalChromosome):
