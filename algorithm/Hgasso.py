@@ -35,11 +35,11 @@ class Hgasso(NsgaII):
 
             if fitness > self._sBestScore[i]:
                 self._sBestScore[i] = fitness
-                self._sBest[i] = np.copy(self._current_position[i])
+                self._sBest[i] = self._current_position[i][:]
 
             if fitness > self._sgBestScore:
                 self._sgBestScore = fitness
-                self._sgBest = np.copy(self._current_position[i])
+                self._sgBest = self._current_position[i][:]
 
         self.updateVelocities(population)
         return super().replacement(population)
