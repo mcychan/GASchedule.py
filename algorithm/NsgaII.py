@@ -42,7 +42,6 @@ class NsgaII:
         doublePopulationSize = self._populationSize * 2
         s = doublePopulationSize * [ set() ]
         n = doublePopulationSize * [0]
-        rank = doublePopulationSize * [0]
         front = [ set() ]
         range1 = range(doublePopulationSize)
 
@@ -54,7 +53,6 @@ class NsgaII:
                     n[p] += 1
 
             if n[p] == 0:
-                rank[p] = 0
                 front[0].add(p)
     
         i = 0
@@ -64,7 +62,6 @@ class NsgaII:
                 for q in s[p]:
                     n[q] -= 1
                     if n[q] == 0:
-                        rank[q] = i + 1
                         Q.add(q)
             i += 1
             front.append(Q)
@@ -74,28 +71,23 @@ class NsgaII:
 
     # calculate crowding distance function
     def calculateCrowdingDistance(self, front, totalChromosome):
-        distance, obj, array = {}, {}, {}
+        distance, obj, population = {}, {}, {}
         for key in front:
             distance[key] = 0
-            obj[key] = totalChromosome[key].fitness
-            array[key] = totalChromosome[key]
-        
-        result = {}
-        for key, value in obj.items():
-            if value not in result.values():
-                result[key] = value
-        obj = result
-        
+            population[key] = totalChromosome[key]
+            fitness = totalChromosome[key].fitness
+            if fitness not in obj.values():
+                obj[key] = fitness
+
         sorted_keys = sorted(obj, key=obj.get)
         size = len(obj)
         distance[sorted_keys[0]] = distance[sorted_keys[size - 1]] = sys.float_info.max
         
         if size > 1:
-            diff2 = array[sorted_keys[size - 1]].getDifference(array[sorted_keys[0]])
+            diff2 = population[sorted_keys[size - 1]].getDifference(population[sorted_keys[0]])
                 
             for i in range(1, size - 1):
-                diff = array[sorted_keys[i + 1]].getDifference(array[sorted_keys[i - 1]])
-                diff /= diff2
+                diff = population[sorted_keys[i + 1]].getDifference(population[sorted_keys[i - 1]]) / diff2
                 distance[sorted_keys[i]] += diff
 
         return distance
@@ -158,7 +150,7 @@ class NsgaII:
 
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
-        mutationSize = self._mutationSize        
+        mutationSize = self._mutationSize
         mutationProbability = self._mutationProbability
         nonDominatedSorting = self.nonDominatedSorting
         selection = self.selection
@@ -224,5 +216,4 @@ class NsgaII:
             currentGeneration += 1
             
     def __str__(self):
-        return "NSGA II"             
-            
+        return "NSGA II"
