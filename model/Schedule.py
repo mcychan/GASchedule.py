@@ -32,7 +32,7 @@ class Schedule:
         if not setup_only:
             self._configuration = c.configuration
             # copy code
-            self._slots, self._classes = c.slots[:], c.classes
+            self._slots, self._classes = c.slots[:], dict(c.classes)
 
             # copy flags of class requirements
             self._criteria = c.criteria[:]
