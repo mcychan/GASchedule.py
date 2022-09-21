@@ -4,6 +4,7 @@ from .Reservation import Reservation
 from collections import defaultdict, deque
 from random import randrange
 
+import numpy as np
 
 # Schedule chromosome
 class Schedule:
@@ -22,7 +23,7 @@ class Schedule:
         self._classes = defaultdict(Reservation)
 
         # Flags of class requirements satisfaction
-        self._criteria = (self._configuration.numberOfCourseClasses * Constant.CRITERIA_NUM) * [False]
+        self._criteria = np.zeros(self._configuration.numberOfCourseClasses * Constant.CRITERIA_NUM, dtype=bool)
         
         self._diversity = 0.0
         self._rank = 0
@@ -31,10 +32,10 @@ class Schedule:
         if not setup_only:
             self._configuration = c.configuration
             # copy code
-            self._slots, self._classes = c.slots, c.classes
+            self._slots, self._classes = c.slots[:], c.classes
 
             # copy flags of class requirements
-            self._criteria = c.criteria
+            self._criteria = c.criteria[:]
 
             # copy fitness
             self._fitness = c.fitness
@@ -341,12 +342,7 @@ class Schedule:
         self._fitness = score / (configuration.numberOfCourseClasses * DAYS_NUM)
 
     def getDifference(self, other):
-        val = 0
-        size = min(len(self._criteria), len(other.criteria))
-        for i in range(size):
-            if self._criteria[i] ^ other.criteria[i]:
-                val += 1
-        return val
+        return np.logical_xor(self._criteria, other.criteria).sum()
 
 
     def extractPositions(self, positions):
