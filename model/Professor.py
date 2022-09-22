@@ -13,3 +13,8 @@ class Professor:
     # Compares ID's of two objects which represent professors
     def __eq__(self, rhs):
         return self.Id == rhs.Id
+
+    def __ne__(self, other):
+        # Not strictly necessary, but to avoid having both x==y and x!=y
+        # True at the same time
+        return not (self == other)

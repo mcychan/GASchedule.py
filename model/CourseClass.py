@@ -17,7 +17,7 @@ class CourseClass:
         # Returns duration of class in hours
         self.Duration = duration
         # Returns reference to list of student groups who attend class
-        self.Groups = groups
+        self.Groups = set(groups)
 
         # bind professor to class
         self.Professor.addCourseClass(self)
@@ -29,7 +29,7 @@ class CourseClass:
 
     # Returns TRUE if another class has one or overlapping student groups.
     def groupsOverlap(self, c):
-        return any(True for grp in self.Groups if grp in c.Groups)
+        return len(self.Groups & c.Groups) > 0
 
     # Returns TRUE if another class has same professor.
     def professorOverlaps(self, c):
