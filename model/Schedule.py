@@ -1,6 +1,7 @@
 from .Constant import Constant
 from .CourseClass import CourseClass
 from .Reservation import Reservation
+from .Criteria import Criteria
 from collections import defaultdict, deque
 from random import randrange
 
@@ -282,10 +283,7 @@ class Schedule:
 
             dur = cc.Duration
 
-            # check for room overlapping of classes
-            reservation_index = hash(reservation)
-            cls = slots[reservation_index: reservation_index + dur]
-            ro = any(True for slot in cls if len(slot) > 1)
+            ro = Criteria.isRoomOverlapped(slots, reservation, dur)
 
             # on room overlapping
             score = 0 if ro else score + 1
@@ -294,38 +292,18 @@ class Schedule:
 
             r = getRoomById(room)
             # does current room have enough seats
-            criteria[ci + 1] = r.NumberOfSeats >= cc.NumberOfSeats
+            criteria[ci + 1] = Criteria.isSeatEnough(r, cc)
             score = score + 1 if criteria[ci + 1] else score / 2
 
             # does current room have computers if they are required
-            criteria[ci + 2] = (not cc.LabRequired) or (cc.LabRequired and r.Lab)
+            criteria[ci + 2] = Criteria.isComputerEnough(r, cc)
             score = score + 1 if criteria[ci + 2] else score / 2
 
             po = go = False
 
             # check overlapping of classes for professors and student groups
-            t = day * daySize + time
-            professorOverlaps, groupsOverlap = cc.professorOverlaps, cc.groupsOverlap
-            try:
-                for k in range(numberOfRooms, 0, -1):
-                    # for each hour of class
-                    for i in range(t, t + dur):
-                        cl = slots[i]
-                        for cc1 in cl:
-                            if cc != cc1:
-                                # professor overlaps?
-                                if not po and professorOverlaps(cc1):
-                                    po = True
-                                # student group overlaps?
-                                if not go and groupsOverlap(cc1):
-                                    go = True
-                                # both type of overlapping? no need to check more
-                                if po and go:
-                                    raise Exception('no need to check more')
-
-                    t += DAY_HOURS
-            except Exception:
-                pass
+            timeId = day * daySize + time
+            professorOverlaps, groupsOverlap = Criteria.isOverlappedProfStudentGrp(slots, cc, numberOfRooms, timeId, dur)
 
             # professors have no overlapping classes?
             score = 0 if po else score + 1
