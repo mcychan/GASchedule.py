@@ -32,6 +32,8 @@ class Hgasso(NsgaII):
             elif fitness < self._sBestScore[i]:
                 population[i].updatePositions(self._current_position[i])
                 fitness = population[i].fitness
+            else:
+                population[i].extractPositions(self._current_position[i])
 
             if fitness > self._sBestScore[i]:
                 self._sBestScore[i] = fitness
@@ -62,7 +64,7 @@ class Hgasso(NsgaII):
                 self._sBestScore = np.zeros(populationSize, dtype=float)
 
             self._sBestScore[i] = population[i].fitness
-            self._current_position[i] = positions
+            self._current_position[i] = np.array(positions)
             self._velocity[i] = np.random.uniform(-.6464, .7157, size) / 3.0
 
     def updateVelocities(self, population):
