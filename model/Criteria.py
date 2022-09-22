@@ -1,6 +1,4 @@
 from .Constant import Constant
-from .CourseClass import CourseClass
-from .Reservation import Reservation
 
 
 # Reads configuration file and stores parsed objects
