@@ -32,8 +32,6 @@ class Hgasso(NsgaII):
             elif fitness < self._sBestScore[i]:
                 population[i].updatePositions(self._current_position[i])
                 fitness = population[i].fitness
-            else:
-                population[i].extractPositions(self._current_position[i])
 
             if fitness > self._sBestScore[i]:
                 self._sBestScore[i] = fitness
