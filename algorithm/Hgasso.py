@@ -62,12 +62,14 @@ class Hgasso(NsgaII):
             self._velocity[i] = np.random.uniform(-.6464, .7157, size) / 3.0
 
     def updateVelocities(self, population):
-        dim = self._velocity.shape
-        self._velocity = np.random.random(dim) * np.log10(np.random.uniform(7.0, 14.0, dim)) * self._velocity + \
-        np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (
-        self._sBest - self._current_position) + \
-        np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (
-        self._sgBest - self._current_position)
+        populationSize = len(population)
+        dim = self._velocity.shape[1]
+        for i in range(populationSize):
+            self._velocity[i] = np.random.random(dim) * np.log10(np.random.uniform(7.0, 14.0, dim)) * self._velocity[i] + \
+            np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (
+            self._sBest[i] - self._current_position[i]) + \
+            np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (
+            self._sgBest - self._current_position[i])
 
         self._current_position += self._velocity
 
