@@ -209,9 +209,17 @@ class Schedule:
         return new_chromosome
 
     def repair(self, cc1: CourseClass, reservation1: Reservation, reservation2: Reservation):
+        nr = self._configuration.numberOfRooms
         slots = self._slots	
         reservation1_index, reservation2_index = hash(reservation1), hash(reservation2)
         dur = cc1.Duration
+
+        if (reservation2_index + dur) >= len(slots):
+            day = randrange(Constant.DAYS_NUM)
+            room = randrange(nr)
+            time = randrange(Constant.DAY_HOURS - dur)
+            reservation2 = Reservation(nr, day, time, room)
+            reservation2_index = hash(reservation2)
 
         # move all time-space slots
         for j in range(dur):
