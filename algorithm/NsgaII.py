@@ -1,5 +1,5 @@
 from model.Schedule import Schedule
-import random
+import numpy as np
 import sys
 from time import time
 
@@ -101,7 +101,7 @@ class NsgaII:
                 N += len(row)
                 if N > populationSize:
                     distance = calculateCrowdingDistance(row, totalChromosome)
-                    sortedCdf = reversed(sorted(distance, key=distance.get))
+                    sortedCdf = sorted(distance, key=distance.get, reverse=True)
                     for j in sortedCdf:
                         if len(newPop) >= populationSize:
                             break
@@ -117,8 +117,8 @@ class NsgaII:
         crossoverProbability = self._crossoverProbability
         offspring = []
         # generate a random sequence to select the parent chromosome to crossover
-        S = list(range(populationSize))
-        random.shuffle(S)
+        S = np.arange(populationSize)
+        np.random.shuffle(S)
 
         halfPopulationSize = populationSize // 2
         for m in range(halfPopulationSize):
@@ -141,7 +141,7 @@ class NsgaII:
             population[i] = prototype.makeNewFromPrototype()
 
     def reform(self):
-        random.seed(round(time() * 1000))
+        np.random.seed(int(time()))
         if self._crossoverProbability < 95:
             self._crossoverProbability += 1.0;
         elif self._mutationProbability < 30:
@@ -157,7 +157,7 @@ class NsgaII:
         population = populationSize * [None]
 
         self.initialize(population)
-        random.seed(round(time() * 1000))
+        np.random.seed(int(time()))
 
         # Current generation
         currentGeneration = 0

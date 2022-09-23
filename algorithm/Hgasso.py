@@ -62,7 +62,7 @@ class Hgasso(NsgaII):
                 self._sBestScore = np.zeros(populationSize, dtype=float)
 
             self._sBestScore[i] = population[i].fitness
-            self._current_position[i] = np.array(positions)
+            self._current_position[i] = positions
             self._velocity[i] = np.random.uniform(-.6464, .7157, size) / 3.0
 
     def updateVelocities(self, population):
