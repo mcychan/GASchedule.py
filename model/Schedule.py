@@ -307,8 +307,6 @@ class Schedule:
             criteria[ci + 2] = Criteria.isComputerEnough(r, cc)
             score = score + 1 if criteria[ci + 2] else score / 2
 
-            po = go = False
-
             # check overlapping of classes for professors and student groups
             timeId = day * daySize + time
             po, go = Criteria.isOverlappedProfStudentGrp(slots, cc, numberOfRooms, timeId, dur)
