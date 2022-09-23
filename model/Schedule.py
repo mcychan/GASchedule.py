@@ -57,9 +57,9 @@ class Schedule:
         for c in classes:
             # determine random position of class
             dur = c.Duration
-            day = randrange(DAYS_NUM)
-            room = randrange(nr)
-            time = randrange(DAY_HOURS - dur)
+            day = randrange(32768) % DAYS_NUM
+            room = randrange(32768) % nr
+            time = randrange(32768) % (DAY_HOURS - dur)
             reservation = Reservation(nr, day, time, room)
             if positions is not None:
                 positions.append(day)
@@ -102,7 +102,7 @@ class Schedule:
         for i in range(numberOfCrossoverPoints, 0, -1):
             check_point = False
             while not check_point:
-                p = randrange(size)
+                p = randrange(32768) % size
                 if not cp[p]:
                     cp[p] = check_point = True
 
@@ -140,7 +140,7 @@ class Schedule:
 
         # return smart pointer to offspring
         return n
-
+        
     # Performs crossover operation using to chromosomes and returns pointer to offspring
     def crossovers(self, parent, r1, r2, r3, etaCross, crossoverProbability):
         # number of classes
@@ -246,7 +246,7 @@ class Schedule:
         # move selected number of classes at random position
         for i in range(mutationSize, 0, -1):
             # select ranom chromosome for movement
-            mpos = randrange(numberOfClasses)
+            mpos = randrange(32768) % numberOfClasses
 
             # current time-space slot used by class
             cc1 = course_classes[mpos]
@@ -254,9 +254,9 @@ class Schedule:
 
             # determine position of class randomly
             dur = cc1.Duration
-            day = randrange(DAYS_NUM)
-            room = randrange(nr)
-            time = randrange(DAY_HOURS - dur)
+            day = randrange(32768) % DAYS_NUM
+            room = randrange(32768) % nr
+            time = randrange(32768) % (DAY_HOURS - dur)
             reservation2 = Reservation(nr, day, time, room)
             self.repair(cc1, reservation1, reservation2)
 
@@ -395,3 +395,22 @@ class Schedule:
     def rank(self, new_rank):
         self._rank = new_rank
         
+    def __hash__(self) -> int:
+        prime = 31
+        result = 1
+        classes = self._classes
+        for cc in classes.keys():
+            reservation = classes[cc]
+            result = prime * result + (0 if reservation is None else hash(reservation))
+        return result
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        classes, otherClasses = self._classes, other.classes
+        for cc in classes.keys():
+            if classes[cc] != otherClasses[cc]:
+                return False
+            
+    def __ne__(self, other):
+        return not self.__eq__(other)
