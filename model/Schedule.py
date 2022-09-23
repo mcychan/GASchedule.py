@@ -214,7 +214,7 @@ class Schedule:
         dur = cc1.Duration
 
         # move all time-space slots
-        for j in range(dur):
+        for j in range(dur - 1, -1, -1):
             # remove class hour from current time-space slot
             cl = slots[reservation1_index + j]
             clTuple = tuple(cl)
@@ -394,23 +394,3 @@ class Schedule:
     @rank.setter
     def rank(self, new_rank):
         self._rank = new_rank
-        
-    def __hash__(self) -> int:
-        prime = 31
-        result = 1
-        classes = self._classes
-        for cc in classes.keys():
-            reservation = classes[cc]
-            result = prime * result + (0 if reservation is None else hash(reservation))
-        return result
-
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return False
-        classes, otherClasses = self._classes, other.classes
-        for cc in classes.keys():
-            if classes[cc] != otherClasses[cc]:
-                return False
-            
-    def __ne__(self, other):
-        return not self.__eq__(other)
