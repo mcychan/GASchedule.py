@@ -28,6 +28,8 @@ class Hgasso(NsgaII):
             if fitness < self._sBestScore[i]:
                 population[i].updatePositions(self._current_position[i])
                 fitness = population[i].fitness
+            else:
+                population[i].extractPositions(self._current_position[i])
 
             if fitness > self._sBestScore[i]:
                 self._sBestScore[i] = fitness
@@ -62,14 +64,12 @@ class Hgasso(NsgaII):
             self._velocity[i] = np.random.uniform(-.6464, .7157, size) / 3.0
 
     def updateVelocities(self, population):
-        populationSize = len(population)
         dim = self._velocity.shape[1]
-        for i in range(populationSize):
-            self._velocity[i] = np.random.random(dim) * np.log10(np.random.uniform(7.0, 14.0, dim)) * self._velocity[i] + \
-            np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (
-            self._sBest[i] - self._current_position[i]) + \
-            np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (
-            self._sgBest - self._current_position[i])
+        self._velocity = np.random.random(dim) * np.log10(np.random.uniform(7.0, 14.0, dim)) * self._velocity + \
+        np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (
+        self._sBest - self._current_position) + \
+        np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (
+        self._sgBest - self._current_position)
 
         self._current_position += self._velocity
 
