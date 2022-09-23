@@ -2,7 +2,7 @@ from .Constant import Constant
 from .CourseClass import CourseClass
 from .Reservation import Reservation
 from .Criteria import Criteria
-from collections import defaultdict, deque
+from collections import OrderedDict, deque
 from random import randrange
 
 import numpy as np
@@ -21,7 +21,7 @@ class Schedule:
 
         # Class table for chromosome
         # Used to determine first time-space slot used by class
-        self._classes = defaultdict(Reservation)
+        self._classes = OrderedDict()
 
         # Flags of class requirements satisfaction
         self._criteria = np.zeros(self._configuration.numberOfCourseClasses * Constant.CRITERIA_NUM, dtype=bool)
@@ -213,13 +213,6 @@ class Schedule:
         slots = self._slots	
         reservation1_index, reservation2_index = hash(reservation1), hash(reservation2)
         dur = cc1.Duration
-
-        if (reservation2_index + dur) >= len(slots):
-            day = randrange(Constant.DAYS_NUM)
-            room = randrange(nr)
-            time = randrange(Constant.DAY_HOURS - dur)
-            reservation2 = Reservation(nr, day, time, room)
-            reservation2_index = hash(reservation2)
 
         # move all time-space slots
         for j in range(dur):
