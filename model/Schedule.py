@@ -32,8 +32,11 @@ class Schedule:
     def copy(self, c, setup_only):
         if not setup_only:
             self._configuration = c.configuration
+            items = c.classes.items()
             # copy code
-            self._slots, self._classes = c.slots[:], OrderedDict(c.classes)
+            self._slots, self._classes = c.slots[:], OrderedDict()
+            for cc, reservation in items:
+                self._classes[cc] = reservation
 
             # copy flags of class requirements
             self._criteria = c.criteria[:]
