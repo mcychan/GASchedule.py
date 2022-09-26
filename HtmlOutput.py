@@ -1,4 +1,5 @@
 from model.Constant import Constant
+from model.Reservation import Reservation
 from collections import defaultdict
 
 
@@ -54,7 +55,9 @@ class HtmlOutput:
         ROOM_COLUMN_NUMBER = HtmlOutput.ROOM_COLUMN_NUMBER
         getCourseClass = HtmlOutput.getCourseClass
 
-        for cc, reservation in items():
+        for cc, reservation_index in items():
+            reservation = Reservation.parse(reservation_index)
+
             # coordinate of time-space slot
             dayId = reservation.Day + 1
             periodId = reservation.Time + 1

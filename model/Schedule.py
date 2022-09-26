@@ -21,7 +21,7 @@ class Schedule:
 
         # Class table for chromosome
         # Used to determine first time-space slot used by class
-        self._classes = dict()
+        self._classes = {}
 
         # Flags of class requirements satisfaction
         self._criteria = np.zeros(self._configuration.numberOfCourseClasses * Constant.CRITERIA_NUM, dtype=bool)
@@ -60,7 +60,7 @@ class Schedule:
             day = randrange(DAYS_NUM)
             room = randrange(nr)
             time = randrange(DAY_HOURS - dur)
-            reservation = Reservation(nr, day, time, room)
+            reservation = Reservation.getReservation(nr, day, time, room)
             if positions is not None:
                 positions.append(day)
                 positions.append(room)
@@ -72,7 +72,7 @@ class Schedule:
                 new_chromosome_slots[i].append(c)
 
             # insert in class table of chromosome
-            new_chromosome_classes[c] = reservation
+            new_chromosome_classes[c] = reservation_index
 
         new_chromosome.calculateFitness()
         return new_chromosome
@@ -113,20 +113,18 @@ class Schedule:
             if first:
                 course_class = course_classes[i]
                 dur = course_class.Duration
-                reservation = classes[course_class]
-                reservation_index = hash(reservation)
+                reservation_index = classes[course_class]
                 # insert class from first parent into new chromosome's class table
-                n_classes[course_class] = reservation
+                n_classes[course_class] = reservation_index
                 # all time-space slots of class are copied
                 for j in range(reservation_index, reservation_index + dur):
                     n_slots[j].append(course_class)
             else:
                 course_class = parent_course_classes[i]
                 dur = course_class.Duration
-                reservation = parent_classes[course_class]
-                reservation_index = hash(reservation)
+                reservation_index = parent_classes[course_class]
                 # insert class from second parent into new chromosome's class table
-                n_classes[course_class] = reservation
+                n_classes[course_class] = reservation_index
                 # all time-space slots of class are copied
                 for j in range(reservation_index, reservation_index + dur):
                     n_slots[j].append(course_class)
@@ -160,7 +158,8 @@ class Schedule:
         for i in range(size):
             if randrange(100) > crossoverProbability or i == jrand:
                 course_class = course_classes[i]
-                reservation1, reservation2, reservation3 = r1.classes[course_class], r2.classes[course_class], r3.classes[course_class]
+                reservation1, reservation2 = Reservation.parse(r1.classes[course_class]), Reservation.parse(r2.classes[course_class])
+                reservation3 = Reservation.parse(r3.classes[course_class])
                 
                 dur = course_class.Duration
                 day = int(reservation3.Day + etaCross * (reservation1.Day - reservation2.Day))
@@ -189,7 +188,7 @@ class Schedule:
                     new_chromosome_slots[j].append(course_class)
 
                 # insert in class table of chromosome
-                new_chromosome_classes[course_class] = reservation
+                new_chromosome_classes[course_class] = reservation_index
             else:
                 course_class = parent_course_classes[i]
                 dur = course_class.Duration
@@ -201,17 +200,17 @@ class Schedule:
                     new_chromosome_slots[j].append(course_class)
                 
                 # insert class from second parent into new chromosome's class table
-                new_chromosome_classes[course_class] = reservation
+                new_chromosome_classes[course_class] = reservation_index
                 
         new_chromosome.calculateFitness()
 
         # return smart pointer to offspring
         return new_chromosome
 
-    def repair(self, cc1: CourseClass, reservation1: Reservation, reservation2: Reservation):
+    def repair(self, cc1: CourseClass, reservation1_index: int, reservation2: Reservation):
         nr = self._configuration.numberOfRooms
         slots = self._slots	
-        reservation1_index, reservation2_index = hash(reservation1), hash(reservation2)
+        reservation2_index = hash(reservation2)
         dur = cc1.Duration
 
         # move all time-space slots
@@ -226,7 +225,7 @@ class Schedule:
             slots[reservation2_index + j].append(cc1)
 
         # change entry of class table to point to new time-space slots
-        self._classes[cc1] = reservation2
+        self._classes[cc1] = reservation2_index
 
     # Performs mutation on chromosome
     def mutation(self, mutationSize, mutationProbability):
@@ -251,15 +250,15 @@ class Schedule:
 
             # current time-space slot used by class
             cc1 = course_classes[mpos]
-            reservation1 = classes[cc1]
+            reservation1_index = classes[cc1]
 
             # determine position of class randomly
             dur = cc1.Duration
             day = randrange(DAYS_NUM)
             room = randrange(nr)
             time = randrange(DAY_HOURS - dur)
-            reservation2 = Reservation(nr, day, time, room)
-            self.repair(cc1, reservation1, reservation2)
+            reservation2 = Reservation.getReservation(nr, day, time, room)
+            self.repair(cc1, reservation1_index, reservation2)
 
         self.calculateFitness()
 
@@ -278,7 +277,9 @@ class Schedule:
         getRoomById = configuration.getRoomById
 
         # check criteria and calculate scores for each class in schedule
-        for cc, reservation in items:
+        for cc, reservation_index in items:
+            reservation = Reservation.parse(reservation_index)
+
             # coordinate of time-space slot
             day, time, room = reservation.Day, reservation.Time, reservation.Room
 
@@ -325,12 +326,14 @@ class Schedule:
     def extractPositions(self, positions):
         i = 0
         items = self._classes.items()
-        for cc, reservation in items:
+        for cc, reservation_index in items:
+            reservation = Reservation.parse(reservation_index)
+
             positions[i] = reservation.Day
             i += 1
-            positions[i] = reservation.Time
-            i += 1
             positions[i] = reservation.Room
+            i += 1
+            positions[i] = reservation.Time
             i += 1
 
 
@@ -339,17 +342,17 @@ class Schedule:
         nr = self._configuration.numberOfRooms
         i = 0
         items = self._classes.items()
-        for cc, reservation1 in items:
+        for cc, reservation1_index in items:
             dur = cc.Duration
-            day = int(abs(positions[i] % DAYS_NUM))
+            day = abs(int(positions[i]) % DAYS_NUM)
             i += 1
-            room = int(abs(positions[i] % nr))
+            room = abs(int(positions[i]) % nr)
             i += 1
-            time = int(abs(positions[i] % (DAY_HOURS - dur)))
+            time = abs(int(positions[i]) % (DAY_HOURS - dur))
             i += 1
 
-            reservation2 = Reservation(nr, day, time, room)
-            self.repair(cc, reservation1, reservation2)
+            reservation2 = Reservation.getReservation(nr, day, time, room)
+            self.repair(cc, reservation1_index, reservation2)
 
         self.calculateFitness()
 
