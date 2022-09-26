@@ -180,7 +180,7 @@ class Schedule:
                 elif time >= (DAY_HOURS - dur):
                     time = DAY_HOURS - 1 - dur
                     
-                reservation = Reservation(nr, day, time, room)
+                reservation = Reservation.getReservation(nr, day, time, room)
                 reservation_index = hash(reservation)
 
                 # fill time-space slots, for each hour of class
