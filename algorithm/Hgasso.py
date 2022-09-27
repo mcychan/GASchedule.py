@@ -69,9 +69,8 @@ class Hgasso(NsgaII):
 
     def updateVelocities(self, population, motility):
         populationSize = len(population)
-        start = int(populationSize * self._threshold)
         dim = self._velocity.shape[1]
-        for i in range(start, populationSize):
+        for i in range(populationSize):
             if not motility[i]:
                 continue
 
