@@ -32,15 +32,16 @@ class Hgasso(NsgaII):
                 population[i].extractPositions(self._current_position[i])
             elif fitness < self._sBestScore[i]:
                 population[i].updatePositions(self._current_position[i])
-                motility[i] = True
                 fitness = population[i].fitness
 
             if fitness > self._sBestScore[i]:
                 self._sBestScore[i] = fitness
+                motility[i] = True
                 self._sBest[i] = self._current_position[i][:]
 
             if fitness > self._sgBestScore:
                 self._sgBestScore = fitness
+                motility[i] = True
                 self._sgBest = self._current_position[i][:]
 
         self.updateVelocities(population, motility)
@@ -68,16 +69,16 @@ class Hgasso(NsgaII):
             self._velocity[i] = np.random.uniform(-.6464, .7157, size) / 3.0
 
     def updateVelocities(self, population, motility):
-        populationSize = len(population)
-        dim = self._velocity.shape[1]
-        for i in range(populationSize):
-            if not motility[i]:
-                continue
+        if np.count_nonzero(motility) < 1:
+            return
 
-            self._velocity[i] = np.random.random(dim) * np.log10(np.random.uniform(7.0, 14.0, dim)) * self._velocity[i] + \
-            np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (self._sBest[i] - self._current_position[i]) + \
-            np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (self._sgBest - self._current_position[i])
-            self._current_position[i] += self._velocity[i]
+        populationSize = len(population)
+        dim = self._velocity[motility].shape
+
+        self._velocity[motility] = np.random.random(dim) * np.log10(np.random.uniform(7.0, 14.0, dim)) * self._velocity[motility] + \
+        np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (self._sBest[motility] - self._current_position[motility]) + \
+        np.log10(np.random.uniform(7.0, 14.0, dim)) * np.log10(np.random.uniform(35.5, 38.5, dim)) * (self._sgBest - self._current_position[motility])
+        self._current_position[motility] += self._velocity[motility]
 
     def __str__(self):
         return "Hybrid Genetic Algorithm and Sperm Swarm Optimization (HGASSO)"
