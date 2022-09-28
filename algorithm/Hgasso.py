@@ -20,11 +20,12 @@ class Hgasso(NsgaII):
         self._sBestScore, self._sgBestScore = [], 0
         self._sBest, self._sgBest = [], []
         self._current_position, self._velocity = [], []
+        self._motility = []
 
     def replacement(self, population):
         populationSize = len(population)
         start = int(populationSize * self._threshold)
-        motility = np.zeros(populationSize, dtype=bool)
+
 
         for i in range(populationSize):
             fitness = population[i].fitness
@@ -33,18 +34,19 @@ class Hgasso(NsgaII):
             elif fitness < self._sBestScore[i]:
                 population[i].updatePositions(self._current_position[i])
                 fitness = population[i].fitness
+                self._motility[i] = True
 
             if fitness > self._sBestScore[i]:
                 self._sBestScore[i] = fitness
-                motility[i] = True
                 self._sBest[i] = self._current_position[i][:]
+                self._motility[i] = not self._motility[i]
 
             if fitness > self._sgBestScore:
                 self._sgBestScore = fitness
-                motility[i] = True
                 self._sgBest = self._current_position[i][:]
+                self._motility[i] = not self._motility[i]
 
-        self.updateVelocities(population, motility)
+        self.updateVelocities(population)
         return super().replacement(population)
 
     def initialize(self, population):
@@ -63,12 +65,14 @@ class Hgasso(NsgaII):
                 self._sBest = np.zeros((populationSize, size), dtype=float)
                 self._sgBest = np.zeros(populationSize, dtype=float)
                 self._sBestScore = np.zeros(populationSize, dtype=float)
+                self._motility = np.zeros(populationSize, dtype=bool)
 
             self._sBestScore[i] = population[i].fitness
             self._current_position[i] = positions
             self._velocity[i] = np.random.uniform(-.6464, .7157, size) / 3.0
 
-    def updateVelocities(self, population, motility):
+    def updateVelocities(self, population):
+        motility = self._motility
         if np.count_nonzero(motility) < 1:
             return
 
