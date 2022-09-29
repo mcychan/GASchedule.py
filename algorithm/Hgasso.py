@@ -31,7 +31,7 @@ class Hgasso(NsgaII):
             fitness = population[i].fitness
             if i < start:
                 population[i].extractPositions(self._current_position[i])
-            elif fitness < self._sBestScore[i] or (fitness == self._sBestScore[i] and np.random.random() < self._repeatRatio):
+            elif fitness < self._sBestScore[i] or (fitness == self._sBestScore[i] and self._repeatRatio > .75):
                 population[i].updatePositions(self._current_position[i])
                 fitness = population[i].fitness
                 self._motility[i] = True
