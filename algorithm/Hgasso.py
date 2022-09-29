@@ -40,6 +40,9 @@ class Hgasso(NsgaII):
                 self._sgBest = self._current_position[i][:]
                 self._motility[i] = not self._motility[i]
 
+            if self._repeatRatio > self._sBestScore[i]:
+                self._sBestScore[i] -= self._repeatRatio * .25
+
         self.updateVelocities(population)
         return super().replacement(population)
 
