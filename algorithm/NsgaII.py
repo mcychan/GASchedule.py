@@ -22,6 +22,7 @@ class NsgaII:
         # Population of chromosomes
         self._chromosomes = []
         self._populationSize = numberOfChromosomes
+        self._repeatRatio = .0
 
     # Initializes genetic algorithm
     def __init__(self, configuration, numberOfCrossoverPoints=2, mutationSize=2, crossoverProbability=80,
@@ -180,6 +181,7 @@ class NsgaII:
                 else:
                     repeat = 0
 
+                self._repeatRatio = repeat * 100 / maxRepeat
                 if repeat > (maxRepeat / 100):
                     self.reform()
 
