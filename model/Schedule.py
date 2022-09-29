@@ -68,8 +68,8 @@ class Schedule:
             reservation_index = hash(reservation)
 
             # fill time-space slots, for each hour of class
-            for i in range(reservation_index, reservation_index + dur):
-                new_chromosome_slots[i].append(c)
+            for i in range(dur - 1, -1, -1):
+                new_chromosome_slots[reservation_index + i].append(c)
 
             # insert in class table of chromosome
             new_chromosome_classes[c] = reservation_index
@@ -117,8 +117,8 @@ class Schedule:
                 # insert class from first parent into new chromosome's class table
                 n_classes[course_class] = reservation_index
                 # all time-space slots of class are copied
-                for j in range(reservation_index, reservation_index + dur):
-                    n_slots[j].append(course_class)
+                for j in range(dur - 1, -1, -1):
+                    n_slots[reservation_index + j].append(course_class)
             else:
                 course_class = parent_course_classes[i]
                 dur = course_class.Duration
@@ -126,8 +126,8 @@ class Schedule:
                 # insert class from second parent into new chromosome's class table
                 n_classes[course_class] = reservation_index
                 # all time-space slots of class are copied
-                for j in range(reservation_index, reservation_index + dur):
-                    n_slots[j].append(course_class)
+                for j in range(dur - 1, -1, -1):
+                    n_slots[reservation_index + j].append(course_class)
 
             # crossover point
             if cp[i]:
@@ -184,8 +184,8 @@ class Schedule:
                 reservation_index = hash(reservation)
 
                 # fill time-space slots, for each hour of class
-                for j in range(reservation_index, reservation_index + dur):
-                    new_chromosome_slots[j].append(course_class)
+                for j in range(dur - 1, -1, -1):
+                    new_chromosome_slots[reservation_index + j].append(course_class)
 
                 # insert in class table of chromosome
                 new_chromosome_classes[course_class] = reservation_index
@@ -196,12 +196,12 @@ class Schedule:
                 reservation_index = hash(reservation)
                 
                 # all time-space slots of class are copied
-                for j in range(reservation_index, reservation_index + dur):
-                    new_chromosome_slots[j].append(course_class)
+                for j in range(dur - 1, -1, -1):
+                    new_chromosome_slots[reservation_index + j].append(course_class)
                 
                 # insert class from second parent into new chromosome's class table
                 new_chromosome_classes[course_class] = reservation_index
-                
+
         new_chromosome.calculateFitness()
 
         # return smart pointer to offspring
@@ -217,8 +217,7 @@ class Schedule:
         for j in range(dur):
             # remove class hour from current time-space slot
             cl = slots[reservation1_index + j]
-            clTuple = tuple(cl)
-            for cc1 in clTuple:
+            while cc1 in cl:
                 cl.remove(cc1)
 
             # move class hour to new time-space slot
