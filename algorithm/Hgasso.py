@@ -16,7 +16,6 @@ class Hgasso(NsgaII):
                  mutationProbability=3):
         super().__init__(configuration, numberOfCrossoverPoints, mutationSize, crossoverProbability,
                         mutationProbability)
-        self._threshold = .25
         self._sBestScore, self._sgBestScore = [], 0
         self._sBest, self._sgBest = [], []
         self._current_position, self._velocity = [], []
@@ -24,14 +23,10 @@ class Hgasso(NsgaII):
 
     def replacement(self, population):
         populationSize = len(population)
-        start = int(populationSize * self._threshold)
-
 
         for i in range(populationSize):
             fitness = population[i].fitness
-            if i < start:
-                population[i].extractPositions(self._current_position[i])
-            elif fitness < self._sBestScore[i]:
+            if fitness < self._sBestScore[i]:
                 population[i].updatePositions(self._current_position[i])
                 fitness = population[i].fitness
                 self._motility[i] = True
