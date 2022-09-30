@@ -45,7 +45,9 @@ class Hgasso(NsgaII):
             if self._repeatRatio > self._sBestScore[i]:
                 self._sBestScore[i] -= self._repeatRatio * self._decline
             if self._repeatRatio > climax and self._sgBestScore > climax:
-                self._sBestScore[i] -= self._repeatRatio * self._decline
+                if i > (populationSize * self._sgBestScore):
+                    population[i].updatePositions(self._current_position[i])
+                    self._motility[i] = True
 
         self.updateVelocities(population)
         return super().replacement(population)
