@@ -35,10 +35,12 @@ class Hgasso(NsgaII):
 
             if fitness > self._sBestScore[i]:
                 self._sBestScore[i] = fitness
+                population[i].extractPositions(self._current_position[i])
                 self._sBest[i] = self._current_position[i][:]
 
             if fitness > self._sgBestScore:
                 self._sgBestScore = fitness
+                population[i].extractPositions(self._current_position[i])
                 self._sgBest = self._current_position[i][:]
                 self._motility[i] = not self._motility[i]
 
