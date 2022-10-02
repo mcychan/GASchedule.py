@@ -24,7 +24,7 @@ class Hgasso(NsgaII):
 
     def replacement(self, population):
         populationSize = len(population)
-        climax = self._climax
+        climax, decline = self._climax, 1 - self._climax
 
         for i in range(populationSize):
             fitness = population[i].fitness
@@ -44,6 +44,8 @@ class Hgasso(NsgaII):
                 self._sgBest = self._current_position[i][:]
                 self._motility[i] = not self._motility[i]
 
+            if self._repeatRatio > self._sBestScore[i]:
+                self._sBestScore[i] -= self._repeatRatio * decline
             if self._repeatRatio > climax and self._sgBestScore > climax:
                 if i > (populationSize * self._sgBestScore):
                     population[i].updatePositions(self._current_position[i])
