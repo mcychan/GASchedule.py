@@ -56,7 +56,7 @@ class Emosoa(NsgaII):
                 self._gBest = self._current_position[i][:]
 
             if self._repeatRatio > climax and self._gBestScore > climax:
-                if i > (2 * populationSize * self._gBestScore):
+                if i > (populationSize * self._repeatRatio):
                     population[i].updatePositions(self._current_position[i])
 
         self.exploitation()
