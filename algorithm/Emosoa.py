@@ -27,9 +27,7 @@ class Emosoa(NsgaII):
         dim = positions.shape
         tau = 2 * np.pi
 
-        r1, r2 = np.random.random(dim), np.random.random(dim)
-
-        A1, C1 = 2 * Fc * r1 - Fc, 2 * r2
+        A1 = 2 * Fc * np.random.random(dim) - Fc
         ll = (Fc - 1) * np.random.random(dim) + 1
 
         D_alphs = Fc * positions + A1 * (self._gBest - positions)
