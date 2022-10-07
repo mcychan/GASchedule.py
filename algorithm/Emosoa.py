@@ -23,15 +23,18 @@ class Emosoa(NsgaII):
 
     def exploitation(self):
         positions = self._current_position
-        b, Fc = 1, 2 - self._currentGeneration * (2 / self._max_iterations)
         dim = positions.shape
         tau = 2 * np.pi
 
-        A1 = 2 * Fc * np.random.random(dim) - Fc
-        ll = (Fc - 1) * np.random.random(dim) + 1
+        A = 2 - self._currentGeneration * (2 / self._max_iterations)
+        B = (2 * A * A) * np.random.random(dim)
+        C = A * positions
+        M = B * (self._gBest - positions)
+        D, theta = np.abs(C + M), np.random.uniform(0, tau, dim)
+        r = np.exp(theta)
 
-        D_alphs = Fc * positions + A1 * (self._gBest - positions)
-        positions = D_alphs * np.exp(b * ll) * np.cos(ll * tau) + self._gBest
+        x, y, z = r * np.cos(theta), r * np.sin(theta), r * theta
+        positions = D * x * y * z + self._gBest
 
 
     def replacement(self, population):
