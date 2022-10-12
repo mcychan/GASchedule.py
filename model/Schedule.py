@@ -218,10 +218,24 @@ class Schedule:
 
     def repair(self, cc1: CourseClass, reservation1_index: int, reservation2: Reservation):
         nr = self._configuration.numberOfRooms
-        slots = self._slots	
-        reservation2_index = hash(reservation2)
+        DAY_HOURS, DAYS_NUM = Constant.DAY_HOURS, Constant.DAYS_NUM
+        slots = self._slots
         dur = cc1.Duration
 
+        # determine position of class randomly
+        retry, maxRetry = 0 if reservation2 is None else 1, len(slots) // dur
+        while retry < maxRetry:
+            if reservation2 is not None and not Criteria.isRoomOverlapped(self._slots, reservation2, dur):
+                break
+
+            day = randrange(DAYS_NUM)
+            room = randrange(nr)
+            time = randrange(DAY_HOURS - dur)
+            reservation2 = Reservation.getReservation(nr, day, time, room)
+
+            retry += 1
+
+        reservation2_index = hash(reservation2)
         # move all time-space slots
         for j in range(dur):
             # remove class hour from current time-space slot
@@ -234,6 +248,7 @@ class Schedule:
 
         # change entry of class table to point to new time-space slots
         self._classes[cc1] = reservation2_index
+        return reservation2_index
 
     # Performs mutation on chromosome
     def mutation(self, mutationSize, mutationProbability):
@@ -248,9 +263,6 @@ class Schedule:
         configuration = self._configuration
         nr = configuration.numberOfRooms
 
-        DAY_HOURS = Constant.DAY_HOURS
-        DAYS_NUM = Constant.DAYS_NUM
-
         # move selected number of classes at random position
         for i in range(mutationSize, 0, -1):
             # select ranom chromosome for movement
@@ -260,21 +272,7 @@ class Schedule:
             cc1 = course_classes[mpos]
             reservation1_index = classes[cc1]
 
-            # determine position of class randomly
-            dur = cc1.Duration
-            retry, maxRetry = 0, len(self._slots) // dur
-            while retry < maxRetry:
-                day = randrange(DAYS_NUM)
-                room = randrange(nr)
-                time = randrange(DAY_HOURS - dur)
-                reservation2 = Reservation.getReservation(nr, day, time, room)
-
-                if not Criteria.isRoomOverlapped(self._slots, reservation2, dur):
-                    break
-
-                retry += 1
-
-            self.repair(cc1, reservation1_index, reservation2)
+            self.repair(cc1, reservation1_index, None)
 
         self.calculateFitness()
 
@@ -366,14 +364,18 @@ class Schedule:
         for cc, reservation1_index in items:
             dur = cc.Duration
             day = abs(int(positions[i]) % DAYS_NUM)
-            i += 1
-            room = abs(int(positions[i]) % nr)
-            i += 1
-            time = abs(int(positions[i]) % (DAY_HOURS - dur))
-            i += 1
+            room = abs(int(positions[i + 1]) % nr)
+            time = abs(int(positions[i + 2]) % (DAY_HOURS - dur))
 
             reservation2 = Reservation.getReservation(nr, day, time, room)
-            self.repair(cc, reservation1_index, reservation2)
+            reservation2 = Reservation.parse(self.repair(cc, reservation1_index, reservation2))
+
+            positions[i] = reservation2.Day
+            i += 1
+            positions[i] = reservation2.Room
+            i += 1
+            positions[i] = reservation2.Time
+            i += 1
 
         self.calculateFitness()
 
