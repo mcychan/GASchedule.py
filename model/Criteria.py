@@ -23,8 +23,10 @@ class Criteria:
 
     # check overlapping of classes for professors and student groups
     @staticmethod
-    def isOverlappedProfStudentGrp(slots, cc, numberOfRooms, timeId, dur):
+    def isOverlappedProfStudentGrp(slots, cc, numberOfRooms, timeId):
         po = go = False
+
+        dur = cc.Duration
         for i in range(numberOfRooms, 0, -1):
             # for each hour of class
             for j in range(timeId, timeId + dur):

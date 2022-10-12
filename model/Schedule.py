@@ -57,10 +57,19 @@ class Schedule:
         for c in classes:
             # determine random position of class
             dur = c.Duration
-            day = randrange(DAYS_NUM)
-            room = randrange(nr)
-            time = randrange(DAY_HOURS - dur)
-            reservation = Reservation.getReservation(nr, day, time, room)
+
+            retry = 0
+            while retry < dur:
+                day = randrange(DAYS_NUM)
+                room = randrange(nr)
+                time = randrange(DAY_HOURS - dur)
+                reservation = Reservation.getReservation(nr, day, time, room)
+
+                if not Criteria.isRoomOverlapped(new_chromosome_slots, reservation, dur):
+                    break
+
+                retry += 1
+
             if positions is not None:
                 positions.append(day)
                 positions.append(room)
@@ -253,10 +262,18 @@ class Schedule:
 
             # determine position of class randomly
             dur = cc1.Duration
-            day = randrange(DAYS_NUM)
-            room = randrange(nr)
-            time = randrange(DAY_HOURS - dur)
-            reservation2 = Reservation.getReservation(nr, day, time, room)
+            retry = 0
+            while retry < dur:
+                day = randrange(DAYS_NUM)
+                room = randrange(nr)
+                time = randrange(DAY_HOURS - dur)
+                reservation2 = Reservation.getReservation(nr, day, time, room)
+
+                if not Criteria.isRoomOverlapped(self._slots, reservation2, dur):
+                    break
+
+                retry += 1
+
             self.repair(cc1, reservation1_index, reservation2)
 
         self.calculateFitness()
@@ -302,7 +319,7 @@ class Schedule:
 
             # check overlapping of classes for professors and student groups
             timeId = day * daySize + time
-            po, go = Criteria.isOverlappedProfStudentGrp(slots, cc, numberOfRooms, timeId, dur)
+            po, go = Criteria.isOverlappedProfStudentGrp(slots, cc, numberOfRooms, timeId)
 
             # professors have no overlapping classes?
             score = 0 if po else score + 1
@@ -319,7 +336,12 @@ class Schedule:
         self._fitness = score / (configuration.numberOfCourseClasses * DAYS_NUM)
 
     def getDifference(self, other):
-        return np.logical_xor(self._criteria, other.criteria).sum()
+        slots, val = other._slots, 0
+        size = min(len(_slots), len(slots))
+        for i in range(size):
+            val += abs(len(_slots[i]) - len(slots[i]))
+
+        return val
 
 
     def extractPositions(self, positions):
