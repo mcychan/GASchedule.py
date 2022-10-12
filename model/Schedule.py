@@ -222,6 +222,12 @@ class Schedule:
         slots = self._slots
         dur = cc1.Duration
 
+        for j in range(dur):
+            # remove class hour from current time-space slot
+            cl = slots[reservation1_index + j]
+            while cc1 in cl:
+                cl.remove(cc1)
+
         # determine position of class randomly
         retry, maxRetry = 0 if reservation2 is None else 1, len(slots) // dur
         while retry < maxRetry:
@@ -236,13 +242,7 @@ class Schedule:
             retry += 1
 
         reservation2_index = hash(reservation2)
-        # move all time-space slots
         for j in range(dur):
-            # remove class hour from current time-space slot
-            cl = slots[reservation1_index + j]
-            while cc1 in cl:
-                cl.remove(cc1)
-
             # move class hour to new time-space slot
             slots[reservation2_index + j].append(cc1)
 
