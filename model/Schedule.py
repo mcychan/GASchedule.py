@@ -58,8 +58,8 @@ class Schedule:
             # determine random position of class
             dur = c.Duration
 
-            retry = 0
-            while retry < dur:
+            retry, maxRetry = 0, len(new_chromosome_slots) // dur
+            while retry < maxRetry:
                 day = randrange(DAYS_NUM)
                 room = randrange(nr)
                 time = randrange(DAY_HOURS - dur)
@@ -262,8 +262,8 @@ class Schedule:
 
             # determine position of class randomly
             dur = cc1.Duration
-            retry = 0
-            while retry < dur:
+            retry, maxRetry = 0, len(self._slots) // dur
+            while retry < maxRetry:
                 day = randrange(DAYS_NUM)
                 room = randrange(nr)
                 time = randrange(DAY_HOURS - dur)
