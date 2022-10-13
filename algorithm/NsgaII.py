@@ -1,5 +1,6 @@
 from model.Schedule import Schedule
 import numpy as np
+import random
 import sys
 from time import time
 
@@ -42,12 +43,11 @@ class NsgaII:
     def nonDominatedSorting(self, totalChromosome):
         doublePopulationSize = self._populationSize * 2
         s = doublePopulationSize * [ set() ]
-        n = doublePopulationSize * [0]
+        n = np.zeros(doublePopulationSize, dtype=int)
         front = [ set() ]
-        range1 = range(doublePopulationSize)
 
-        for p in range1:
-            for q in range1:
+        for p in range(doublePopulationSize):
+            for q in range(doublePopulationSize):
                 if totalChromosome[p].fitness > totalChromosome[q].fitness:
                     s[p].add(q)
                 elif totalChromosome[p].fitness < totalChromosome[q].fitness:
@@ -142,11 +142,12 @@ class NsgaII:
             population[i] = prototype.makeNewFromPrototype()
 
     def reform(self):
+        random.seed(round(time() * 1000))
         np.random.seed(int(time()))
         if self._crossoverProbability < 95:
-            self._crossoverProbability += 1.0;
+            self._crossoverProbability += 1.0
         elif self._mutationProbability < 30:
-            self._mutationProbability += 1.0;
+            self._mutationProbability += 1.0
 
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
@@ -158,6 +159,7 @@ class NsgaII:
         population = populationSize * [None]
 
         self.initialize(population)
+        random.seed(round(time() * 1000))
         np.random.seed(int(time()))
 
         # Current generation
