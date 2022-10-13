@@ -334,13 +334,7 @@ class Schedule:
         self._fitness = score / (configuration.numberOfCourseClasses * DAYS_NUM)
 
     def getDifference(self, other):
-        criteria, val = other._criteria, 0
-        size = min(len(_criteria), len(criteria))
-        for i in range(size):
-            if _criteria[i] ^ criteria[i]:
-                val += 1
-
-        return val
+        return (self._criteria ^ other.criteria).sum()
 
 
     def extractPositions(self, positions):
