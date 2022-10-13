@@ -39,7 +39,9 @@ class CourseClass:
         return hash(self.Id)
 
     def __eq__(self, other):
-        return self.Id == other.Id
+        if not isinstance(other, self.__class__):
+            return False
+        return hash(self) == hash(other)
 
     def __ne__(self, other):
         # Not strictly necessary, but to avoid having both x==y and x!=y
