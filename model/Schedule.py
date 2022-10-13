@@ -58,17 +58,10 @@ class Schedule:
             # determine random position of class
             dur = c.Duration
 
-            retry, maxRetry = 0, len(new_chromosome_slots) // dur
-            while retry < maxRetry:
-                day = randrange(DAYS_NUM)
-                room = randrange(nr)
-                time = randrange(DAY_HOURS - dur)
-                reservation = Reservation.getReservation(nr, day, time, room)
-
-                if not Criteria.isRoomOverlapped(new_chromosome_slots, reservation, dur):
-                    break
-
-                retry += 1
+            day = randrange(DAYS_NUM)
+            room = randrange(nr)
+            time = randrange(DAY_HOURS - dur)
+            reservation = Reservation.getReservation(nr, day, time, room)
 
             if positions is not None:
                 positions.append(day)
@@ -229,17 +222,10 @@ class Schedule:
                 cl.remove(cc1)
 
         # determine position of class randomly
-        retry, maxRetry = 0 if reservation2 is None else 1, len(slots) // dur
-        while retry < maxRetry:
-            if reservation2 is not None and not Criteria.isRoomOverlapped(self._slots, reservation2, dur):
-                break
-
-            day = randrange(DAYS_NUM)
-            room = randrange(nr)
-            time = randrange(DAY_HOURS - dur)
-            reservation2 = Reservation.getReservation(nr, day, time, room)
-
-            retry += 1
+        day = randrange(DAYS_NUM)
+        room = randrange(nr)
+        time = randrange(DAY_HOURS - dur)
+        reservation2 = Reservation.getReservation(nr, day, time, room)
 
         reservation2_index = hash(reservation2)
         for j in range(dur):
@@ -374,6 +360,10 @@ class Schedule:
 
         self.calculateFitness()
 
+
+    @property
+    def length(self):
+        return self._configuration.numberOfCourseClasses * 3
 
     # Returns fitness value of chromosome
     @property
