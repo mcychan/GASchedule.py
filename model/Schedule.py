@@ -222,10 +222,11 @@ class Schedule:
                 cl.remove(cc1)
 
         # determine position of class randomly
-        day = randrange(DAYS_NUM)
-        room = randrange(nr)
-        time = randrange(DAY_HOURS - dur)
-        reservation2 = Reservation.getReservation(nr, day, time, room)
+        if reservation2 is None:
+            day = randrange(DAYS_NUM)
+            room = randrange(nr)
+            time = randrange(DAY_HOURS - dur)
+            reservation2 = Reservation.getReservation(nr, day, time, room)
 
         reservation2_index = hash(reservation2)
         for j in range(dur):
@@ -234,7 +235,6 @@ class Schedule:
 
         # change entry of class table to point to new time-space slots
         self._classes[cc1] = reservation2_index
-        return reservation2_index
 
     # Performs mutation on chromosome
     def mutation(self, mutationSize, mutationProbability):
@@ -349,7 +349,7 @@ class Schedule:
             time = abs(int(positions[i + 2]) % (DAY_HOURS - dur))
 
             reservation2 = Reservation.getReservation(nr, day, time, room)
-            reservation2 = Reservation.parse(self.repair(cc, reservation1_index, reservation2))
+            self.repair(cc, reservation1_index, reservation2)
 
             positions[i] = reservation2.Day
             i += 1
