@@ -334,7 +334,13 @@ class Schedule:
         self._fitness = score / (configuration.numberOfCourseClasses * DAYS_NUM)
 
     def getDifference(self, other):
-        return np.logical_xor(self._criteria, other.criteria).sum()
+        criteria, val = other._criteria, 0
+        size = min(len(_criteria), len(criteria))
+        for i in range(size):
+            if _criteria[i] ^ criteria[i]:
+                val += 1
+
+        return val
 
 
     def extractPositions(self, positions):
