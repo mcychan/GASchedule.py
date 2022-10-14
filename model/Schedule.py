@@ -31,15 +31,6 @@ class Schedule:
 
     def copy(self, c, setup_only):
         if not setup_only:
-            self._configuration = c.configuration
-            # copy code
-            self._slots, self._classes = [row[:] for row in c.slots], {key: value for key, value in c.classes.items()}
-
-            # copy flags of class requirements
-            self._criteria = c.criteria[:]
-
-            # copy fitness
-            self._fitness = c.fitness
             return self
 
         return Schedule(c.configuration)
@@ -351,7 +342,12 @@ class Schedule:
             reservation2 = Reservation.getReservation(nr, day, time, room)
             self.repair(cc, reservation1_index, reservation2)
 
-            i += 3
+            positions[i] = reservation2.Day
+            i += 1
+            positions[i] = reservation2.Room
+            i += 1
+            positions[i] = reservation2.Time
+            i += 1
 
         self.calculateFitness()
 
