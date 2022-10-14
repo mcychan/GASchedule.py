@@ -317,7 +317,7 @@ class Schedule:
             ci += Constant.CRITERIA_NUM
 
         # calculate fitness value based on score
-        self._fitness = score / (configuration.numberOfCourseClasses * DAYS_NUM)
+        self._fitness = score / len(criteria)
 
     def getDifference(self, other):
         return (self._criteria ^ other.criteria).sum()
@@ -351,19 +351,10 @@ class Schedule:
             reservation2 = Reservation.getReservation(nr, day, time, room)
             self.repair(cc, reservation1_index, reservation2)
 
-            positions[i] = reservation2.Day
-            i += 1
-            positions[i] = reservation2.Room
-            i += 1
-            positions[i] = reservation2.Time
-            i += 1
+            i += 3
 
         self.calculateFitness()
 
-
-    @property
-    def length(self):
-        return self._configuration.numberOfCourseClasses * 3
 
     # Returns fitness value of chromosome
     @property
