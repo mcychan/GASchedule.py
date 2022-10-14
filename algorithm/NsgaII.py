@@ -81,10 +81,10 @@ class NsgaII:
 
         sorted_keys = sorted(obj, key=obj.get)
         size = len(obj)
-        distance[sorted_keys[0]] = distance[sorted_keys[size - 1]] = sys.float_info.max
+        distance[sorted_keys[0]] = distance[sorted_keys[-1]] = sys.float_info.max
         
         if size > 1:
-            diff2 = totalChromosome[sorted_keys[size - 1]].getDifference(totalChromosome[sorted_keys[0]])
+            diff2 = totalChromosome[sorted_keys[-1]].getDifference(totalChromosome[sorted_keys[0]])
                 
             for i in range(1, size - 1):
                 diff = totalChromosome[sorted_keys[i + 1]].getDifference(totalChromosome[sorted_keys[i - 1]]) / diff2
