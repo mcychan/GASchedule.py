@@ -31,6 +31,15 @@ class Schedule:
 
     def copy(self, c, setup_only):
         if not setup_only:
+            self._configuration = c.configuration
+            # copy code
+            self._slots, self._classes = [row[:] for row in c.slots], {key: value for key, value in c.classes.items()}
+
+            # copy flags of class requirements
+            self._criteria = c.criteria[:]
+
+            # copy fitness
+            self._fitness = c.fitness
             return self
 
         return Schedule(c.configuration)
