@@ -169,19 +169,19 @@ class Schedule:
                     day = 0
                 elif day >= DAYS_NUM:
                     day = DAYS_NUM - 1
-                    
+
                 room = int(reservation3.Room + etaCross * (reservation1.Room - reservation2.Room))
                 if room < 0:
                     room = 0
                 elif room >= nr:
                     room = nr - 1
-                    
+
                 time = int(reservation3.Time + etaCross * (reservation1.Time - reservation2.Time))
                 if time < 0:
                     time = 0
                 elif time >= (DAY_HOURS - dur):
                     time = DAY_HOURS - 1 - dur
-                    
+
                 reservation = Reservation.getReservation(nr, day, time, room)
                 reservation_index = hash(reservation)
 
@@ -344,9 +344,17 @@ class Schedule:
         items = self._classes.items()
         for cc, reservation1_index in items:
             dur = cc.Duration
-            day = abs(int(positions[i]) % DAYS_NUM)
-            room = abs(int(positions[i + 1]) % nr)
-            time = abs(int(positions[i + 2]) % (DAY_HOURS - dur))
+            day = abs(int(positions[i]))
+            room = abs(int(positions[i + 1]))
+            time = abs(int(positions[i + 2]))
+            if day >= DAYS_NUM:
+                day = DAYS_NUM - 1
+
+            if room >= nr:
+                room = nr - 1
+
+            if time >= (DAY_HOURS - dur):
+                time = DAY_HOURS - 1 - dur
 
             reservation2 = Reservation.getReservation(nr, day, time, room)
             self.repair(cc, reservation1_index, reservation2)
