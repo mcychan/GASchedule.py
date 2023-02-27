@@ -24,10 +24,13 @@ class Schedule:
         self._classes = {}
 
         # Flags of class requirements satisfaction
-        self._criteria = np.zeros(self._configuration.numberOfCourseClasses * Constant.CRITERIA_NUM, dtype=bool)
-        
+        self._criteria = np.zeros(self._configuration.numberOfCourseClasses * len(Criteria.weights), dtype=bool)
+
         self._diversity = 0.0
         self._rank = 0
+
+        self._convertedObjectives = []
+        self._objectives = []
 
     def copy(self, c, setup_only):
         if not setup_only:
@@ -264,6 +267,9 @@ class Schedule:
 
     # Calculates fitness value of chromosome
     def calculateFitness(self):
+        # increment value when criteria violation occurs
+        self._objectives = np.zeros(len(Criteria.weights))
+
         # chromosome's score
         score = 0
 
@@ -288,33 +294,33 @@ class Schedule:
             ro = Criteria.isRoomOverlapped(slots, reservation, dur)
 
             # on room overlapping
-            score = 0 if ro else score + 1
-
             criteria[ci + 0] = not ro
 
             r = getRoomById(room)
             # does current room have enough seats
             criteria[ci + 1] = Criteria.isSeatEnough(r, cc)
-            score = score + 1 if criteria[ci + 1] else score / 2
 
             # does current room have computers if they are required
             criteria[ci + 2] = Criteria.isComputerEnough(r, cc)
-            score = score + 1 if criteria[ci + 2] else score / 2
 
             # check overlapping of classes for professors and student groups
             timeId = day * daySize + time
             po, go = Criteria.isOverlappedProfStudentGrp(slots, cc, numberOfRooms, timeId)
 
             # professors have no overlapping classes?
-            score = 0 if po else score + 1
-
             criteria[ci + 3] = not po
 
             # student groups has no overlapping classes?
-            score = 0 if go else score + 1
-
             criteria[ci + 4] = not go
-            ci += Constant.CRITERIA_NUM
+
+            for i in range(len(self._objectives)):
+                if criteria[ci + i]:
+                    score += 1
+                else:
+                    score += Criteria.weights[i]
+                    self._objectives[i] += 1 if Criteria.weights[i] > 0 else 2
+
+            ci += len(Criteria.weights)
 
         # calculate fitness value based on score
         self._fitness = score / len(criteria)
@@ -384,7 +390,7 @@ class Schedule:
     # Return reference to array of time-space slots
     def slots(self):
         return self._slots
-        
+
     @property
     def diversity(self):
         return self._diversity
@@ -400,3 +406,18 @@ class Schedule:
     @rank.setter
     def rank(self, new_rank):
         self._rank = new_rank
+
+    @property
+    def convertedObjectives(self):
+        return self._convertedObjectives
+
+    @property
+    def objectives(self):
+        return self._objectives
+
+    def resizeConvertedObjectives(self, numObj):
+        if self._convertedObjectives is None or len(self._convertedObjectives) < numObj:
+            self._convertedObjectives = np.zeros(numObj)
+
+    def clone(self):
+        return self.copy(self, false)

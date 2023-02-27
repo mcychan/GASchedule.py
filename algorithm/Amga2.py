@@ -14,7 +14,7 @@ from time import time
 
 # Archive-based Micro Genetic Algorithm (AMGA2)
 class Amga2:
-    def initAlgorithm(self, prototype, numberOfChromosomes=100, replaceByGeneration=8):
+    def initAlgorithm(self, prototype, numberOfChromosomes=100):
         # Prototype of chromosomes in population
         self._prototype = prototype
 

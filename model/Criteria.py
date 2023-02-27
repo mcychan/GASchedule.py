@@ -3,6 +3,7 @@ from .Constant import Constant
 
 # Reads configuration file and stores parsed objects
 class Criteria:
+    weights = [0, 0.5, 0.5, 0, 0]
 
     # check for room overlapping of classes
     @staticmethod
