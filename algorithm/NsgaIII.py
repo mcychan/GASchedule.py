@@ -240,13 +240,13 @@ class NsgaIII:
         return intercepts
 
 
-    def normalizeObjectives(self, pop, fronts, intercepts):
+    def normalizeObjectives(self, pop, fronts, intercepts, idealPoint):
         for front in fronts:
             for i, ind in enumerate(front):
                 convObjs = pop[ind].convertedObjectives
                 for f, convObj in enumerate(convObjs):
-                    if abs(intercepts[f]) > np.finfo(float).eps: # avoid the divide-by-zero error
-                        convObj /= intercepts[f]
+                    if abs(intercepts[f] - idealPoint[f]) > np.finfo(float).eps: # avoid the divide-by-zero error
+                        convObj /= intercepts[f] - idealPoint[f]
                     else:
                         convObj /= np.finfo(float).eps
 
@@ -303,17 +303,21 @@ class NsgaIII:
         return -1
 
     def translateObjectives(self, pop, fronts):
-        numObj = len(pop[0].objectives)
+        idealPoint, numObj = [], len(pop[0].objectives)
         for f in range(numObj):
             minf = sys.float_info.max
             for frontIndv in fronts[0]: # min values must appear in the first front
                 minf = min(minf, pop[frontIndv].objectives[f])
+
+            idealPoint.append(minf)
 
             for front in fronts:
                 for ind in front:
                     pop[ind].resizeConvertedObjectives(numObj)
                     convertedObjectives = pop[ind].convertedObjectives
                     convertedObjectives[f] = pop[ind].objectives[f] - minf
+
+        return idealPoint
 
     def selection(self, cur, rps):
         next = []
@@ -339,13 +343,13 @@ class NsgaIII:
             return next
 
         # ---------- Step 14 / Algorithm 2 ----------
-        self.translateObjectives(cur, fronts)
+        idealPoint = self.translateObjectives(cur, fronts)
 
         extremePoints = self.findExtremePoints(cur, fronts)
 
         intercepts = self.constructHyperplane(cur, extremePoints)
 
-        self.normalizeObjectives(cur, fronts, intercepts)
+        self.normalizeObjectives(cur, fronts, intercepts, idealPoint)
 
         # ---------- Step 15 / Algorithm 3, Step 16 ----------
         self.associate(rps, cur, fronts)
