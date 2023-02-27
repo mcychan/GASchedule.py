@@ -442,8 +442,7 @@ class NsgaIII:
                 else:
                     repeat = 0
 
-                self._repeatRatio = repeat * 100 / maxRepeat
-                if repeat > (maxRepeat / 100):
+                if repeat > (maxRepeat / 50):
                     self.reform()
 
             # crossover
