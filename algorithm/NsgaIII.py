@@ -34,6 +34,13 @@ class NsgaIII:
         self._crossoverProbability = crossoverProbability
         self._mutationProbability = mutationProbability
 
+        self._objDivision = []
+        if len(Criteria.weights) < 8:
+            self._objDivision.append(6)
+        else:
+            self._objDivision.append(3)
+            self._objDivision.append(2)
+
     @property
     # Returns pointer to best chromosomes in population
     def result(self):
@@ -121,7 +128,7 @@ class NsgaIII:
     def associate(self, rps, pop, fronts):
         for t, front in enumerate(fronts):
             for memberInd in front:
-                minRp, minDist = len(rps), sys.float_info.max
+                minRp, minDist = len(rps) - 1, sys.float_info.max
                 for r, rp in enumerate(rps):
                     d = self.perpendicularDistance(rp.position, pop[memberInd].convertedObjectives)
                     if d < minDist:
@@ -156,7 +163,7 @@ class NsgaIII:
     def ASF(self, objs, weight):
         max_ratio = -sys.float_info.max
         for f, obj in enumerate(objs):
-            w = max(weight[f], 0.00001)
+            w = max(weight[f], 1e-6)
             max_ratio = max(max_ratio, obj / w)
 
         return max_ratio
@@ -166,7 +173,7 @@ class NsgaIII:
 
         exp = []
         for f in range(numObj):
-            w = 0.000001 + np.zeros(numObj)
+            w = np.full(numObj, 1e-6)
             w[f] = 1.0
 
             minASF, minIndv = sys.float_info.max, len(fronts[0])
@@ -183,7 +190,7 @@ class NsgaIII:
 
     def findMaxObjectives(self, pop):
         numObj = len(pop[0].objectives)
-        maxPoint = np.zeros(numObj) - sys.float_info.max
+        maxPoint = np.full(numObj, -sys.float_info.max)
         for chromosome in pop:
             for f, point in enumerate(maxPoint):
                 point = max(point, chromosome.objectives[f])
@@ -319,7 +326,7 @@ class NsgaIII:
 
         return idealPoint
 
-    def selection(self, cur, rps):
+    def doSelection(self, cur, rps):
         next = []
 
         # ---------- Step 4 in Algorithm 1: non-dominated sorting ----------
@@ -402,18 +409,16 @@ class NsgaIII:
         elif self._mutationProbability < 30:
             self._mutationProbability += 1.0
 
+    def selection(self, population):
+        rps = []
+        self.ReferencePoint.generateReferencePoints(rps, len(Criteria.weights), self._objDivision)
+        return self.doSelection(population, rps)
+
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
         mutationSize, mutationProbability = self._mutationSize, self._mutationProbability
         populationSize = self._populationSize
         population = populationSize * [None]
-
-        objDivision = []
-        if len(Criteria.weights) < 8:
-            objDivision.append(6)
-        else:
-            objDivision.append(3)
-            objDivision.append(2)
 
         self.initialize(population)
         random.seed(round(time() * 1000))
@@ -455,9 +460,7 @@ class NsgaIII:
             pop[cur].extend(offspring)
 
             # selection
-            rps = []
-            self.ReferencePoint.generateReferencePoints(rps, len(Criteria.weights), objDivision)
-            pop[next] = self.selection(pop[cur], rps)
+            pop[next] = self.selection(pop[cur])
             self._best = pop[next][0] if self.dominate(pop[next][0], pop[cur][0]) else pop[cur][0]
 
             # comparison
