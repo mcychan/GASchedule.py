@@ -12,7 +12,7 @@ class Schedule:
     # Initializes chromosomes with configuration block (setup of chromosome)
     def __init__(self, configuration):
         self._configuration = configuration
-        # Fitness value of chromosome        
+        # Fitness value of chromosome
         self._fitness = 0
 
         # Time-space slots, one entry represent one hour in one classroom
@@ -416,8 +416,7 @@ class Schedule:
         return self._objectives
 
     def resizeConvertedObjectives(self, numObj):
-        if self._convertedObjectives is None or len(self._convertedObjectives) < numObj:
-            self._convertedObjectives = np.zeros(numObj)
+        self._convertedObjectives = numObj * [0]
 
     def clone(self):
-        return self.copy(self, false)
+        return self.copy(self, False)

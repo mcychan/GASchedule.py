@@ -428,7 +428,7 @@ class NsgaIII:
         # Current generation
         currentGeneration = 0
 
-        repeat = 0
+        bestNotEnhance = 0
         lastBestFit = 0.0
 
         cur, next = 0, 1
@@ -443,11 +443,12 @@ class NsgaIII:
 
                 difference = abs(best.fitness - lastBestFit)
                 if difference <= 0.0000001:
-                    repeat += 1
+                    bestNotEnhance += 1
                 else:
-                    repeat = 0
+                    lastBestFit = best.fitness
+                    bestNotEnhance = 0
 
-                if repeat > (maxRepeat / 50):
+                if bestNotEnhance > (maxRepeat / 50):
                     self.reform()
 
             # crossover
@@ -462,10 +463,6 @@ class NsgaIII:
             # selection
             pop[next] = self.selection(pop[cur])
             self._best = pop[next][0] if self.dominate(pop[next][0], pop[cur][0]) else pop[cur][0]
-
-            # comparison
-            if currentGeneration > 0:
-                lastBestFit = best.fitness
 
             cur, next = next, cur
             currentGeneration += 1
