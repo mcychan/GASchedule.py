@@ -326,7 +326,7 @@ class NsgaIII:
 
         return idealPoint
 
-    def doSelection(self, cur, rps):
+    def selection(self, cur, rps):
         next = []
 
         # ---------- Step 4 in Algorithm 1: non-dominated sorting ----------
@@ -376,7 +376,7 @@ class NsgaIII:
         next.sort(key = lambda chromosome: chromosome.fitness, reverse=True)
         return next
 
-    def replacement(self, population):
+    def crossing(self, population):
         populationSize = self._populationSize
         crossoverProbability, numberOfCrossoverPoints = self._crossoverProbability, self._numberOfCrossoverPoints
         offspring = []
@@ -409,10 +409,10 @@ class NsgaIII:
         elif self._mutationProbability < 30:
             self._mutationProbability += 1.0
 
-    def selection(self, population):
+    def replacement(self, population):
         rps = []
         self.ReferencePoint.generateReferencePoints(rps, len(Criteria.weights), self._objDivision)
-        return self.doSelection(population, rps)
+        return self.selection(population, rps)
 
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
@@ -452,7 +452,7 @@ class NsgaIII:
                     self.reform()
 
             # crossover
-            offspring = self.replacement(pop[cur])
+            offspring = self.crossing(pop[cur])
 
             # mutation
             for child in offspring:
@@ -460,8 +460,8 @@ class NsgaIII:
 
             pop[cur].extend(offspring)
 
-            # selection
-            pop[next] = self.selection(pop[cur])
+            # replacement
+            pop[next] = self.replacement(pop[cur])
             self._best = pop[next][0] if self.dominate(pop[next][0], pop[cur][0]) else pop[cur][0]
 
             cur, next = next, cur

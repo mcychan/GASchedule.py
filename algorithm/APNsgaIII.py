@@ -114,7 +114,7 @@ class APNsgaIII(NsgaIII):
                     self.reform()
 
             # crossover
-            offspring = self.replacement(pop[cur])
+            offspring = self.crossing(pop[cur])
 
             # mutation
             for child in offspring:
@@ -122,8 +122,8 @@ class APNsgaIII(NsgaIII):
 
             pop[cur].extend(offspring)
 
-            # selection
-            pop[next] = self.selection(pop[cur])
+            # replacement
+            pop[next] = self.replacement(pop[cur])
             self._best = pop[next][0] if self.dominate(pop[next][0], pop[cur][0]) else pop[cur][0]
 
             self.dualCtrlStrategy(pop[next], bestNotEnhance, nMax)
