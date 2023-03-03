@@ -58,14 +58,14 @@ class APNsgaIII(NsgaIII):
             tumor.mutation(self._mutationSize, self._mutationProbability)
 
             self._worst = population[-1]
-            if self.dominate(tumor, chromosome):
+            if tumor.dominates(chromosome):
                 population[i] = tumor
-                if self.dominate(tumor, self._best):
+                if tumor.dominates(self._best):
                     self._best = tumor
             else:
                 if bestNotEnhance >= 15 and N < nMax:
                     N += 1
-                    if self.dominate(self._worst, tumor):
+                    if self._worst.dominates(tumor):
                         population.append(tumor)
                         self._worst = tumor
                     else:
@@ -124,7 +124,7 @@ class APNsgaIII(NsgaIII):
 
             # replacement
             pop[next] = self.replacement(pop[cur])
-            self._best = pop[next][0] if self.dominate(pop[next][0], pop[cur][0]) else pop[cur][0]
+            self._best = pop[next][0] if pop[next][0].dominates(pop[cur][0]) else pop[cur][0]
 
             self.dualCtrlStrategy(pop[next], bestNotEnhance, nMax)
 

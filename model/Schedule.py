@@ -420,3 +420,14 @@ class Schedule:
 
     def clone(self):
         return self.copy(self, False)
+
+    def dominates(self, other):
+        better = False
+        for f, obj in enumerate(self.objectives):
+            if obj > other.objectives[f]:
+                return False
+
+            if obj < other.objectives[f]:
+                better = True
+
+        return better

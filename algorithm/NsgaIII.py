@@ -257,16 +257,6 @@ class NsgaIII:
                     else:
                         convObj /= np.finfo(float).eps
 
-    def dominate(self, left, right):
-        better = False
-        for f, leftObj in enumerate(left.objectives):
-            if leftObj > right.objectives[f]:
-                return False
-
-            if leftObj < right.objectives[f]:
-                better = True
-
-        return better
 
     def nondominatedSort(self, pop):
         numAssignedIndividuals, rank = 0, 1
@@ -281,10 +271,10 @@ class NsgaIII:
 
                 be_dominated = False
                 for j, front in enumerate(curFront):
-                    if self.dominate(pop[front], chromosome):
+                    if pop[front].dominates(chromosome):
                         be_dominated = True
                         break
-                    elif self.dominate(chromosome, pop[front]):
+                    elif chromosome.dominates(pop[front]):
                         del curFront[j]
 
                 if not be_dominated:
@@ -462,7 +452,7 @@ class NsgaIII:
 
             # replacement
             pop[next] = self.replacement(pop[cur])
-            self._best = pop[next][0] if self.dominate(pop[next][0], pop[cur][0]) else pop[cur][0]
+            self._best = pop[next][0] if pop[next][0].dominates(pop[cur][0]) else pop[cur][0]
 
             cur, next = next, cur
             currentGeneration += 1
