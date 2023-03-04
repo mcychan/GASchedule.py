@@ -53,16 +53,6 @@ class NsgaIII:
             self.position = np.zeros(M)
             self._potentialMembers = {}
 
-        @staticmethod
-        def generateRecursive(rps, pt, numObjs, left, total, element):
-            if element == numObjs - 1:
-                pt.position[element] = left * 1.0 / total
-                rps.append(pt)
-            else:
-                for i in range(left + 1):
-                    pt.position[element] = i * 1.0 / total
-                    NsgaIII.ReferencePoint.generateRecursive(rps, pt, numObjs, left - i, total, element + 1)
-
         def addMember(self):
             self.memberSize += 1
 
@@ -94,12 +84,21 @@ class NsgaIII:
 
         @staticmethod
         def generateReferencePoints(rps, M, p):
+            def generateRecursive(rps, pt, numObjs, left, total, element):
+                if element == numObjs - 1:
+                    pt.position[element] = left / total
+                    rps.append(pt)
+                else:
+                    for i in range(left + 1):
+                        pt.position[element] = i / total
+                        generateRecursive(rps, pt, numObjs, left - i, total, element + 1)
+                    
             pt = NsgaIII.ReferencePoint(M)
-            NsgaIII.ReferencePoint.generateRecursive(rps, pt, M, p[0], p[0], 0)
+            generateRecursive(rps, pt, M, p[0], p[0], 0)
 
             if len(p) > 1: # two layers of reference points (Check Fig. 4 in NSGA-III paper)
                 insideRps = []
-                NsgaIII.ReferencePoint.generateRecursive(insideRps, pt, M, p[1], p[1], 0)
+                generateRecursive(insideRps, pt, M, p[1], p[1], 0)
 
                 center = 1.0 / M
                 for insideRp in insideRps:
@@ -111,18 +110,13 @@ class NsgaIII:
 
 
     def perpendicularDistance(self, direction, point):
-        numerator, denominator = 0, 0
-        for i, dir in enumerate(direction):
-            numerator += dir * point[i]
-            denominator += dir ** 2
+        numerator, denominator = np.sum(direction * point), np.sum(direction ** 2)
 
         if denominator <= 0:
             return sys.float_info.max
 
-        k, d = numerator / denominator, 0
-        for i, dir in enumerate(direction):
-            d += (k * dir - point[i]) ** 2
-
+        k = numerator / denominator
+        d = np.sum((k * direction - point) ** 2)
         return np.sqrt(d)
 
     def associate(self, rps, pop, fronts):
@@ -139,25 +133,6 @@ class NsgaIII:
                 else:
                     rps[minRp].addPotentialMember(memberInd, minDist)
 
-    def guassianElimination(self, A, b):
-        N = len(A)
-        for i in range(N):
-            A[i].append(b[i])
-
-        for base in range(N - 1):
-            for target in range(base + 1, N):
-                ratio = A[target][base] / A[base][base]
-                for term in range(len(A[base])):
-                    A[target][term] -= A[base][term] * ratio
-
-        x = np.zeros(N)
-        for i in range(N - 1, -1, -1):
-            for known in range(i + 1, N):
-                A[i][N] -= A[i][known] * x[known]
-
-            x[i] = A[i][N] / A[i][i]
-
-        return x
 
     # ASF: Achivement Scalarization Function
     def ASF(self, objs, weight):
@@ -228,11 +203,9 @@ class NsgaIII:
         intercepts, negativeIntercept = [], False
         if not duplicate:
             # Find the equation of the hyperplane
-            b, A = np.ones(numObj), [[] * len(extremePoints)]
-            for p, extremePoint in enumerate(extremePoints):
-                A[p] = pop[extremePoint].convertedObjectives
+            b, A = np.ones(numObj), [pop[extremePt].convertedObjectives for extremePt in extremePoints]
+            x = np.linalg.solve(A, b)
 
-            x = self.guassianElimination(A, b)
             # Find intercepts
             for f in range(numObj):
                 intercepts.append(1.0 / x[f])
@@ -251,11 +224,7 @@ class NsgaIII:
         for front in fronts:
             for i, ind in enumerate(front):
                 convObjs = pop[ind].convertedObjectives
-                for f, convObj in enumerate(convObjs):
-                    if abs(intercepts[f] - idealPoint[f]) > np.finfo(float).eps: # avoid the divide-by-zero error
-                        convObj /= intercepts[f] - idealPoint[f]
-                    else:
-                        convObj /= np.finfo(float).eps
+                convObjs /= intercepts - idealPoint + np.finfo(float).eps
 
 
     def nondominatedSort(self, pop):
@@ -311,14 +280,11 @@ class NsgaIII:
             for front in fronts:
                 for ind in front:
                     pop[ind].resizeConvertedObjectives(numObj)
-                    convertedObjectives = pop[ind].convertedObjectives
-                    convertedObjectives[f] = pop[ind].objectives[f] - minf
+                    pop[ind].convertedObjectives[f] = pop[ind].objectives[f] - minf
 
         return idealPoint
 
     def selection(self, cur, rps):
-        next = []
-
         # ---------- Step 4 in Algorithm 1: non-dominated sorting ----------
         fronts = self.nondominatedSort(cur)
 
@@ -329,10 +295,9 @@ class NsgaIII:
             last += 1
 
         fronts = fronts[: last] # remove useless individuals
-
+        next = []
         for t in range(len(fronts) - 1):
-            for frontIndv in fronts[t]:
-                next.append(cur[frontIndv])
+            next += [ cur[frontIndv] for frontIndv in fronts[t] ]
 
         # ---------- Steps 9-10 in Algorithm 1 ----------
         if len(next) == self._populationSize:

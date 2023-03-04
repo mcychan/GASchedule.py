@@ -416,7 +416,7 @@ class Schedule:
         return self._objectives
 
     def resizeConvertedObjectives(self, numObj):
-        self._convertedObjectives = numObj * [0]
+        self._convertedObjectives = np.zeros(numObj)
 
     def clone(self):
         return self.copy(self, False)
