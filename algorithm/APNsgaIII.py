@@ -74,6 +74,12 @@ class APNsgaIII(NsgaIII):
         self.popDec(population)
 
 
+    def replacement(self, population):
+        result = super.replacement(population)
+        result.sort(key = lambda chromosome: chromosome.fitness, reverse=True)
+        return result
+
+
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
         mutationSize, mutationProbability = self._mutationSize, self._mutationProbability
