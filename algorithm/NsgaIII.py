@@ -301,7 +301,6 @@ class NsgaIII:
 
         # ---------- Steps 9-10 in Algorithm 1 ----------
         if len(next) == self._populationSize:
-            next.sort(key = lambda chromosome: chromosome.fitness, reverse=True)
             return next
 
         # ---------- Step 14 / Algorithm 2 ----------
@@ -328,7 +327,6 @@ class NsgaIII:
                 rps[minRp].removePotentialMember(chosen)
                 next.append(cur[chosen])
 
-        next.sort(key = lambda chromosome: chromosome.fitness, reverse=True)
         return next
 
     def crossing(self, population):
