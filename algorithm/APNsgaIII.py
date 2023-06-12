@@ -75,7 +75,7 @@ class APNsgaIII(NsgaIII):
 
 
     def replacement(self, population):
-        result = super.replacement(population)
+        result = super().replacement(population)
         result.sort(key = lambda chromosome: chromosome.fitness, reverse=True)
         return result
 
@@ -84,9 +84,9 @@ class APNsgaIII(NsgaIII):
     def run(self, maxRepeat=9999, minFitness=0.999):
         mutationSize, mutationProbability = self._mutationSize, self._mutationProbability
         populationSize = self._populationSize
-        nMax, population = int(1.5 * populationSize), populationSize * [None]
+        nMax = int(1.5 * populationSize)
 
-        self.initialize(population)
+        population = self.initialize()
         random.seed(round(time() * 1000))
         np.random.seed(int(time()))
         pop = [population, None]

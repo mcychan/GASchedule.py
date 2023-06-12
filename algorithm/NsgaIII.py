@@ -233,7 +233,7 @@ class NsgaIII:
 
         while numAssignedIndividuals < len(pop):
             curFront = []
-	
+
             for i, chromosome in enumerate(pop):
                 if indvRanks[i] > 0:
                     continue # already assigned a rank
@@ -345,14 +345,14 @@ class NsgaIII:
 
         return offspring
 
+    def makeNew(self, x):
+        return self._prototype.makeNewFromPrototype()
 
     # initialize new population with chromosomes randomly built using prototype
-    def initialize(self, population):
-        prototype = self._prototype
+    def initialize(self):
+        range1 = range(self._populationSize)
+        return [i for i in map(self.makeNew, range1)]
 
-        for i in range(len(population)):
-            # add new chromosome to population
-            population[i] = prototype.makeNewFromPrototype()
 
     def reform(self):
         random.seed(round(time() * 1000))
@@ -370,10 +370,7 @@ class NsgaIII:
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
         mutationSize, mutationProbability = self._mutationSize, self._mutationProbability
-        populationSize = self._populationSize
-        population = populationSize * [None]
-
-        self.initialize(population)
+        population = self.initialize()
         random.seed(round(time() * 1000))
         np.random.seed(int(time()))
         pop = [population, None]
