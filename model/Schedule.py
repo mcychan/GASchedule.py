@@ -81,6 +81,28 @@ class Schedule:
 
         new_chromosome.calculateFitness()
         return new_chromosome
+        
+    def makeEmptyFromPrototype(self, bounds = None):
+        # make new chromosome, copy chromosome setup
+        new_chromosome = self.copy(self, True)
+        new_chromosome_slots, new_chromosome_classes = new_chromosome._slots, new_chromosome._classes
+
+        # place classes at random position
+        classes = self._configuration.courseClasses
+        nr = self._configuration.numberOfRooms
+        DAYS_NUM, DAY_HOURS = Constant.DAYS_NUM, Constant.DAY_HOURS
+        for c in classes:
+            # determine random position of class
+            dur = c.Duration
+
+            if bounds is not None:
+                bounds.append(DAYS_NUM - 1)
+                bounds.append(nr - 1)
+                bounds.append(DAY_HOURS - 1 - dur)
+
+            new_chromosome_classes[c] = -1
+
+        return new_chromosome
 
     # Performs crossover operation using to chromosomes and returns pointer to offspring
     def crossover(self, parent, numberOfCrossoverPoints, crossoverProbability):
@@ -218,11 +240,12 @@ class Schedule:
         slots = self._slots
         dur = cc1.Duration
 
-        for j in range(dur):
-            # remove class hour from current time-space slot
-            cl = slots[reservation1_index + j]
-            while cc1 in cl:
-                cl.remove(cc1)
+        if reservation1_index > -1:
+            for j in range(dur):
+                # remove class hour from current time-space slot
+                cl = slots[reservation1_index + j]
+                while cc1 in cl:
+                    cl.remove(cc1)
 
         # determine position of class randomly
         if reservation2 is None:
