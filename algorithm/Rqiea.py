@@ -1,4 +1,5 @@
 from .NsgaII import NsgaII
+import math
 import numpy as np
 from random import random, randrange
 from time import time
@@ -125,12 +126,12 @@ class Rqiea(NsgaII):
 	
 	
     def lut(self, alpha, beta, alphabest, betabest):
-        M_PI_2, eps = np.pi / 2, 1e-5
-        xi, xi_b = np.arctan(beta / alpha), np.arctan(betabest / alphabest)
+        M_PI_2, eps = math.pi / 2, 1e-5
+        xi, xi_b = math.atan(beta / alpha), math.atan(betabest / alphabest)
         # (xi_b or xi = 0) || (xi_b or xi = pi/2) || (xi_b or xi = -pi/2)
-        if np.abs(xi_b) < eps or np.abs(xi) < eps\
-                or np.abs(xi_b - M_PI_2) < eps or np.abs(xi_b - M_PI_2) < eps\
-                or np.abs(xi_b + M_PI_2) < eps or np.abs(xi_b + M_PI_2) < eps:
+        if abs(xi_b) < eps or abs(xi) < eps\
+                or abs(xi_b - M_PI_2) < eps or abs(xi_b - M_PI_2) < eps\
+                or abs(xi_b + M_PI_2) < eps or abs(xi_b + M_PI_2) < eps:
             return -1 if (randrange(32768) % 2 != 0) else 1
 
         if xi_b > 0 and xi > 0:
@@ -154,11 +155,11 @@ class Rqiea(NsgaII):
                 qij = 2 * (i * self._chromlen + j)
                 qprim = np.zeros(2, dtype=float)
 
-                k = np.pi / (100 + self._currentGeneration % 100)
+                k = math.pi / (100 + self._currentGeneration % 100)
                 theta = k * self.lut(self._Q[qij], self._Q[qij + 1], self._bestq[j][0], self._bestq[j][1])
 
-                qprim[0] = self._Q[qij] * np.cos(theta) + self._Q[qij + 1] * (-np.sin(theta))
-                qprim[1] = self._Q[qij] * np.sin(theta) + self._Q[qij + 1] * np.cos(theta)
+                qprim[0] = self._Q[qij] * math.cos(theta) + self._Q[qij + 1] * (-math.sin(theta))
+                qprim[1] = self._Q[qij] * math.sin(theta) + self._Q[qij + 1] * math.cos(theta)
 
                 self._Q[qij] = qprim[0]
                 self._Q[qij + 1] = qprim[1]
@@ -194,10 +195,9 @@ class Rqiea(NsgaII):
         nonDominatedSorting = self.nonDominatedSorting
         selection = self.selection
         populationSize = self._populationSize
-        population = populationSize * [None]
+        self._chromosomes = population = populationSize * [None]
 
         self.initialize(population)
-        self._chromosomes = population
         np.random.seed(int(time()))
 
         # Current generation
