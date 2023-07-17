@@ -27,7 +27,7 @@ class Rqiea(NsgaII):
         self._P = []
 
         self._bounds = [[]]
-        self._chromlen, self._updated = 0, 0
+        self._chromlen, self._catastrophe, self._updated = 0, mutationProbability, 0
 
         self._bestval = None
         self._best = []
@@ -86,7 +86,7 @@ class Rqiea(NsgaII):
             positions = self._P[start: start + self._chromlen + 1]
             chromosome = self._prototype.makeEmptyFromPrototype()
             chromosome.updatePositions(positions)
-            if (randrange(100) <= self._mutationProbability and i > self._mutationProbability) \
+            if (randrange(100) <= self._catastrophe and i > self._catastrophe) \
                     or chromosome.fitness > self._chromosomes[i].fitness:
                 self._chromosomes[i] = chromosome
                 self._updated += 1
