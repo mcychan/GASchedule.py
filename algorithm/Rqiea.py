@@ -19,7 +19,7 @@ class Rqiea(NsgaII):
                         mutationProbability)
                         
         self._currentGeneration, self._max_iterations = 0, 5000
-	
+
         # quantum population
         self._Q = []
     
@@ -100,22 +100,22 @@ class Rqiea(NsgaII):
         for i in range(1, self._populationSize):
             if self._chromosomes[i].dominates(self._chromosomes[i_best]):
                 i_best = i
-		
+
         if self._bestval is None or self._chromosomes[i_best].dominates(self._bestval):
             self._bestval = self._chromosomes[i_best]
             self._best[: self._chromlen] = self._P[i_best * self._chromlen: i_best * self._chromlen + self._chromlen]
-			
+
             j, start = 0, i_best * self._chromlen * 2
             for i in range(start, start + self._chromlen * 2, 2):
                 self._bestq[j][0] = self._Q[i]
                 self._bestq[j][1] = self._Q[i + 1]
                 j += 1
 
-	
+
     def evaluate(self):
         # not implemented			
         pass
-	
+
     @staticmethod
     def sign(x):
         if x > 0:
@@ -127,7 +127,7 @@ class Rqiea(NsgaII):
 	
     def lut(self, alpha, beta, alphabest, betabest):
         M_PI_2, eps = math.pi / 2, 1e-5
-        xi, xi_b = math.atan(beta / alpha), math.atan(betabest / alphabest)
+        xi, xi_b = math.atan(beta / (alpha + eps)), math.atan(betabest / (alphabest + eps))
         # (xi_b or xi = 0) || (xi_b or xi = pi/2) || (xi_b or xi = -pi/2)
         if abs(xi_b) < eps or abs(xi) < eps\
                 or abs(xi_b - M_PI_2) < eps or abs(xi_b - M_PI_2) < eps\
@@ -178,7 +178,7 @@ class Rqiea(NsgaII):
         buf = self._Q[q1: q1 + 2 * self._chromlen + 1]
 
         self._Q[q1 + h1 * 2: q1 + h1 * 2 + (h2 - h1) * 2 + 1] = self._Q[q2 + h1: q2 + h1 + (h2 - h1) * 2 + 1]
-        self._Q[q1 + h1 * 2: q1 + h1 * 2 + (h2 - h1) * 2 + 1] = buf[h1: h1 + (h2 - h1) * 2 + 1]
+        self._Q[q2 + h1 * 2: q2 + h1 * 2 + (h2 - h1) * 2 + 1] = buf[h1: h1 + (h2 - h1) * 2 + 1]
 
         for k in range(h1, h2):
             self._Q[q1 + k * 2], self._Q[q2 + k * 2] = self._Q[q2 + k * 2], self._Q[q1 + k * 2]
@@ -255,13 +255,13 @@ class Rqiea(NsgaII):
                     break
                 self._chromosomes = selection(newBestFront, totalChromosome)
                 lastBestFit = bestFitness
-				
+
                 for i in range(populationSize):
                     positions = np.zeros(self._chromlen, dtype=float)
                     start = i * self._chromlen
                     self._chromosomes[i].extractPositions(positions)
                     self._P[start: start + self._chromlen] = positions
-			
+
             self.observe()
             self.evaluate()
             self.storebest()
