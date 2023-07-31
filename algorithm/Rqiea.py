@@ -1,8 +1,9 @@
-from .NsgaII import NsgaII
+from .NsgaIII import NsgaIII
 import math
 import numpy as np
-from random import random, randrange
+import random
 from time import time
+
 
 # Zhang, G.X., Rong, H.N., Real-observation quantum-inspired evolutionary algorithm
 # for a class of numerical optimization problems. In: Lecture Notes
@@ -11,13 +12,14 @@ from time import time
 
 
 # Real observation QIEA (rQIEA)
-class Rqiea(NsgaII):
+class Rqiea(NsgaIII):
     def __init__(self, configuration, numberOfCrossoverPoints=2, mutationSize=2, crossoverProbability=80,
                  mutationProbability=3, maxIterations=5000):
         self._max_iterations = maxIterations
+        self._maxRepeat = min(15, self._max_iterations // 2)
         super().__init__(configuration, numberOfCrossoverPoints, mutationSize, crossoverProbability,
                         mutationProbability)
-                        
+
         self._currentGeneration, self._max_iterations = 0, 5000
 
         # quantum population
@@ -27,83 +29,81 @@ class Rqiea(NsgaII):
         self._P = []
 
         self._bounds = [[]]
-        self._chromlen, self._catastrophe, self._updated = 0, mutationProbability, 0
+        self._chromlen, self._catastrophe, self._bestNotEnhance, self._updated = 0, mutationProbability, 0, 0
 
-        self._bestval = None
-        self._best = []
+        self._bestval = []
         self._bestq = [[]]
 
 
 
     def initialize(self, population):
         prototype = self._prototype
-        self._bestval = None
-		
+
         bounds = []
         populationSize = len(population)
         for i in range(populationSize):	
-            if i < 1:			
+            if i < 1:
                 # initialize new population with chromosomes randomly built using prototype
                 population[i] = prototype.makeEmptyFromPrototype(bounds)
-				
+
                 self._chromlen = size = len(bounds)
                 self._Q = np.zeros(populationSize * size * 2, dtype=float)
                 self._P = np.zeros(populationSize * size, dtype=float)
                 self._bounds = np.zeros((size, 2), dtype=float)
-                self._best = np.zeros(size, dtype=float)
+                self._bestval = np.zeros(size, dtype=float)
                 self._bestq = np.zeros((size, 2), dtype=float)
             else:
                 population[i] = prototype.makeEmptyFromPrototype()
-			
+
             for j in range(self._chromlen):
                 qij = i * 2 * self._chromlen + 2 * j
-                alpha = 2 * random() - 1
-                beta = np.sqrt(1 - alpha ** 2) * (-1 if (randrange(32768) % 2 != 0) else 1)
+                alpha = 2 * random.random() - 1
+                beta = math.sqrt(1 - alpha ** 2) * (-1 if (random.randrange(32768) % 2 != 0) else 1)
                 self._Q[qij] = alpha
                 self._Q[qij + 1] = beta
 
-		
+
         for i in range(len(bounds)):
             self._bounds[i][1] = bounds[i]
 
 
-    def observe(self):
+    def observe(self, population):
         self._updated = 0;
         for i in range(self._populationSize):
             for j in range(self._chromlen):
                 pij = i * self._chromlen + j
                 qij = 2 * pij
-				
-                if random() <= .5:
+
+                if random.random() <= .5:
                     self._P[pij] = self._Q[qij] ** 2
                 else:
                     self._P[pij] = self._Q[qij + 1] ** 2
-				
+
                 self._P[pij] *= self._bounds[j][1] - self._bounds[j][0]
                 self._P[pij] += self._bounds[j][0]
-			
+
             start = i * self._chromlen
             positions = self._P[start: start + self._chromlen + 1]
             chromosome = self._prototype.makeEmptyFromPrototype()
             chromosome.updatePositions(positions)
-            if (randrange(100) <= self._catastrophe and i > self._catastrophe) \
-                    or chromosome.fitness > self._chromosomes[i].fitness:
-                self._chromosomes[i] = chromosome
+            if (random.randrange(100) <= self._catastrophe and i <= self._catastrophe) \
+                    or chromosome.fitness > population[i].fitness:
+                population[i] = chromosome
                 self._updated += 1
             else:
-                self._chromosomes[i].extractPositions(positions)
+                population[i].extractPositions(positions)
                 self._P[start: start + self._chromlen + 1] = positions
 
 	
-    def storebest(self):
+    def storebest(self, population):
         i_best = 0
         for i in range(1, self._populationSize):
-            if self._chromosomes[i].dominates(self._chromosomes[i_best]):
+            if population[i].dominates(population[i_best]):
                 i_best = i
 
-        if self._bestval is None or self._chromosomes[i_best].dominates(self._bestval):
-            self._bestval = self._chromosomes[i_best]
-            self._best[: self._chromlen] = self._P[i_best * self._chromlen: i_best * self._chromlen + self._chromlen]
+        if self._best is None or i_best > 0:
+            self._best = population[i_best]
+            self._bestval[: self._chromlen] = self._P[i_best * self._chromlen: i_best * self._chromlen + self._chromlen]
 
             j, start = 0, i_best * self._chromlen * 2
             for i in range(start, start + self._chromlen * 2, 2):
@@ -111,11 +111,11 @@ class Rqiea(NsgaII):
                 self._bestq[j][1] = self._Q[i + 1]
                 j += 1
 
-
+	
     def evaluate(self):
         # not implemented			
         pass
-
+	
     @staticmethod
     def sign(x):
         if x > 0:
@@ -132,7 +132,7 @@ class Rqiea(NsgaII):
         if abs(xi_b) < eps or abs(xi) < eps\
                 or abs(xi_b - M_PI_2) < eps or abs(xi_b - M_PI_2) < eps\
                 or abs(xi_b + M_PI_2) < eps or abs(xi_b + M_PI_2) < eps:
-            return -1 if (randrange(32768) % 2 != 0) else 1
+            return -1 if (random.randrange(32768) % 2 != 0) else 1
 
         if xi_b > 0 and xi > 0:
             return 1 if xi_b >= xi else -1
@@ -166,12 +166,12 @@ class Rqiea(NsgaII):
 
 	
     def recombine(self):
-        i, j = randrange(self._populationSize), randrange(self._populationSize)
+        i, j = random.randrange(self._populationSize), random.randrange(self._populationSize)
         while i == j:
-            j = randrange(self._populationSize)
+            j = random.randrange(self._populationSize)
 
-        h1 = randrange(self._chromlen)
-        h2 = randrange(self._chromlen - h1) + h1
+        h1 = random.randrange(self._chromlen)
+        h2 = random.randrange(self._chromlen - h1) + h1
 
         q1, q2 = i * self._chromlen * 2, j * self._chromlen * 2
 
@@ -182,95 +182,80 @@ class Rqiea(NsgaII):
 
         for k in range(h1, h2):
             self._Q[q1 + k * 2], self._Q[q2 + k * 2] = self._Q[q2 + k * 2], self._Q[q1 + k * 2]
-	
-    @property
-    # Returns pointer to best chromosomes in population
-    def result(self):
-        return self._bestval
-	
+
+
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
-        mutationSize = self._mutationSize
-        mutationProbability = self._mutationProbability
-        nonDominatedSorting = self.nonDominatedSorting
-        selection = self.selection
+        mutationSize, mutationProbability = self._mutationSize, self._mutationProbability
         populationSize = self._populationSize
-        self._chromosomes = population = populationSize * [None]
+        population = populationSize * [None]
 
         self.initialize(population)
+        random.seed(round(time() * 1000))
         np.random.seed(int(time()))
+        pop = [population, None]
 
         # Current generation
         currentGeneration = self._currentGeneration
-        self.observe()
+        self.observe(pop[0])
         self.evaluate()
-        self.storebest()
+        self.storebest(pop[0])
 
-        bestNotEnhance, lastBestFit = 0, 0.0
+        self._bestNotEnhance, lastBestFit = 0, 0.0
 
+        cur, next = 0, 1
         while currentGeneration < self._max_iterations:
             if currentGeneration > 0:
-                bestFitness = self.result.fitness
-                print("Fitness:", "{:f}\t".format(bestFitness), "Generation:", currentGeneration, end="\r")
+                best = self.result
+                if self._bestNotEnhance < self._maxRepeat:
+                    print("Fitness:", "{:f}\t".format(best.fitness), "Generation:", currentGeneration, end="    \r")
+                else:
+                    print("Fitness:", "{:f}\t".format(best.fitness), "Generation:", currentGeneration, end=" ...\r")
 
                 # algorithm has reached criteria?
-                if bestFitness > minFitness:
+                if best.fitness > minFitness:
                     break
 
-                difference = abs(bestFitness - lastBestFit)
+                difference = abs(best.fitness - lastBestFit)
                 if difference <= 0.0000001:
-                    bestNotEnhance += 1
+                    self._bestNotEnhance += 1
                 else:
-                    bestNotEnhance = 0
+                    lastBestFit = best.fitness
+                    self._bestNotEnhance = 0
 
-                self._repeatRatio = bestNotEnhance * 100 / maxRepeat
-                if bestNotEnhance > (maxRepeat / 100):
+                if self._bestNotEnhance > (maxRepeat / 50):
                     self.reform()
 
             # crossover
-            offspring = self.replacement(population)
+            offspring = self.crossing(pop[cur])
 
             # mutation
             for child in offspring:
                 child.mutation(mutationSize, mutationProbability)
 
-            totalChromosome = population + offspring
+            pop[cur].extend(offspring)
 
-            # non-dominated sorting
-            front = nonDominatedSorting(totalChromosome)
-            if len(front) == 0:
-                break
+            # replacement
+            pop[next] = self.replacement(pop[cur])
+            self._best = pop[next][0] if pop[next][0].dominates(pop[cur][0]) else pop[cur][0]
 
-            # selection
-            population = selection(front, totalChromosome)
-            self._populationSize = populationSize = len(population)
+            cur, next = next, cur
 
-            # comparison
-            if currentGeneration == 0:
-                self._chromosomes = population
-            else:
-                totalChromosome = population + self._chromosomes
-                newBestFront = nonDominatedSorting(totalChromosome)
-                if len(newBestFront) == 0:
-                    break
-                self._chromosomes = selection(newBestFront, totalChromosome)
-                lastBestFit = bestFitness
-
+            if self._bestNotEnhance >= self._maxRepeat and currentGeneration % 4 == 0:
                 for i in range(populationSize):
                     positions = np.zeros(self._chromlen, dtype=float)
                     start = i * self._chromlen
-                    self._chromosomes[i].extractPositions(positions)
+                    pop[cur][i].extractPositions(positions)
                     self._P[start: start + self._chromlen] = positions
 
-            self.observe()
-            self.evaluate()
-            self.storebest()
-            self.update()
-            self.recombine()
+                    self.observe(pop[cur])
+                    self.evaluate()
+                    self.storebest(pop[cur])
+                    self.update()
+                    self.recombine()
 
             currentGeneration += 1
             self._currentGeneration = currentGeneration
 
-	
     def __str__(self):
         return "Real observation QIEA (rQIEA)"
