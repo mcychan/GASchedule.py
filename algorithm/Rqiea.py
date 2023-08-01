@@ -86,8 +86,8 @@ class Rqiea(NsgaIII):
             positions = self._P[start: start + self._chromlen + 1]
             chromosome = self._prototype.makeEmptyFromPrototype()
             chromosome.updatePositions(positions)
-            if (random.randrange(100) <= self._catastrophe and i <= self._catastrophe) \
-                    or chromosome.fitness > population[i].fitness:
+            if population[i].fitness <= 0 or (random.randrange(100) <= self._catastrophe \
+                    and population[i].dominates(chromosome)):
                 population[i] = chromosome
                 self._updated += 1
             else:
@@ -115,7 +115,7 @@ class Rqiea(NsgaIII):
     def evaluate(self):
         # not implemented			
         pass
-	
+
     @staticmethod
     def sign(x):
         if x > 0:
@@ -123,8 +123,8 @@ class Rqiea(NsgaIII):
         if x < 0:
             return -1
         return 0
-	
-	
+
+
     def lut(self, alpha, beta, alphabest, betabest):
         M_PI_2, eps = math.pi / 2, 1e-5
         xi, xi_b = math.atan(beta / (alpha + eps)), math.atan(betabest / (alphabest + eps))
@@ -148,7 +148,7 @@ class Rqiea(NsgaIII):
 
         return self.sign(xi_b)
 
-	
+
     def update(self):
         for i in range(self._populationSize):
             for j in range(self._chromlen):
@@ -164,7 +164,7 @@ class Rqiea(NsgaIII):
                 self._Q[qij] = qprim[0]
                 self._Q[qij + 1] = qprim[1]
 
-	
+
     def recombine(self):
         i, j = random.randrange(self._populationSize), random.randrange(self._populationSize)
         while i == j:
