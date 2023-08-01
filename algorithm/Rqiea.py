@@ -124,8 +124,8 @@ class Rqiea(NsgaIII):
             return -1
         return 0
 
-
-    def lut(self, alpha, beta, alphabest, betabest):
+    @staticmethod
+    def lut(alpha, beta, alphabest, betabest):
         M_PI_2, eps = math.pi / 2, 1e-5
         xi, xi_b = math.atan(beta / (alpha + eps)), math.atan(betabest / (alphabest + eps))
         # (xi_b or xi = 0) || (xi_b or xi = pi/2) || (xi_b or xi = -pi/2)
@@ -138,15 +138,15 @@ class Rqiea(NsgaIII):
             return 1 if xi_b >= xi else -1
 
         if xi_b > 0 and xi < 0:
-            return self.sign(alpha * alphabest)
+            return Rqiea.sign(alpha * alphabest)
 
         if xi_b < 0 and xi > 0:
-            return -self.sign(alpha * alphabest)
+            return -Rqiea.sign(alpha * alphabest)
 
         if xi_b < 0 and xi < 0:
             return 1 if xi_b >= xi else -1
 
-        return self.sign(xi_b)
+        return Rqiea.sign(xi_b)
 
 
     def update(self):
@@ -156,7 +156,7 @@ class Rqiea(NsgaIII):
                 qprim = np.zeros(2, dtype=float)
 
                 k = math.pi / (100 + self._currentGeneration % 100)
-                theta = k * self.lut(self._Q[qij], self._Q[qij + 1], self._bestq[j][0], self._bestq[j][1])
+                theta = k * Rqiea.lut(self._Q[qij], self._Q[qij + 1], self._bestq[j][0], self._bestq[j][1])
 
                 qprim[0] = self._Q[qij] * math.cos(theta) + self._Q[qij + 1] * (-math.sin(theta))
                 qprim[1] = self._Q[qij] * math.sin(theta) + self._Q[qij + 1] * math.cos(theta)
