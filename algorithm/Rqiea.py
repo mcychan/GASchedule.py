@@ -86,7 +86,7 @@ class Rqiea(NsgaIII):
             positions = self._P[start: start + self._chromlen + 1]
             chromosome = self._prototype.makeEmptyFromPrototype()
             chromosome.updatePositions(positions)
-            if population[i].fitness <= 0 or (random.randrange(100) <= self._catastrophe \
+            if population[i].fitness < chromosome.fitness or (random.randrange(100) <= self._catastrophe \
                     and population[i].dominates(chromosome)):
                 population[i] = chromosome
                 self._updated += 1
