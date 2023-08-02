@@ -29,7 +29,7 @@ class Rqiea(NsgaIII):
         self._P = []
 
         self._bounds = [[]]
-        self._chromlen, self._catastrophe, self._bestNotEnhance, self._updated = 0, mutationProbability, 0, 0
+        self._chromlen, self._catastrophe, self._bestNotEnhance = 0, mutationProbability, 0
 
         self._bestval = []
         self._bestq = [[]]
@@ -68,7 +68,6 @@ class Rqiea(NsgaIII):
 
 
     def observe(self, population):
-        self._updated = 0;
         for i in range(self._populationSize):
             for j in range(self._chromlen):
                 pij = i * self._chromlen + j
@@ -84,17 +83,15 @@ class Rqiea(NsgaIII):
 
             start = i * self._chromlen
             positions = self._P[start: start + self._chromlen + 1]
-            chromosome = self._prototype.makeEmptyFromPrototype()
-            chromosome.updatePositions(positions)
-            if population[i].fitness < chromosome.fitness or (random.randrange(100) <= self._catastrophe \
-                    and population[i].dominates(chromosome)):
+            if population[i].fitness <= 0 or random.randrange(100) <= self._catastrophe:
+                chromosome = self._prototype.makeEmptyFromPrototype()
+                chromosome.updatePositions(positions)
                 population[i] = chromosome
-                self._updated += 1
             else:
                 population[i].extractPositions(positions)
                 self._P[start: start + self._chromlen + 1] = positions
 
-	
+
     def storebest(self, population):
         i_best = 0
         for i in range(1, self._populationSize):
