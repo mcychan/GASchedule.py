@@ -8,10 +8,10 @@ import traceback
 
 from model.Configuration import Configuration
 # from algorithm.GeneticAlgorithm import GeneticAlgorithm
-from algorithm.APNsgaIII import APNsgaIII
+# from algorithm.APNsgaIII import APNsgaIII
+from algorithm.Cso import Cso
 # from algorithm.Ngra import Ngra
 # from algorithm.Amga2 import Amga2
-# from algorithm.Hgasso import Hgasso
 from HtmlOutput import HtmlOutput
 
 
@@ -22,9 +22,9 @@ def main(file_name):
     target_file = str(pathlib.Path().absolute()) + file_name
     configuration.parseFile(target_file)
 
-    alg = APNsgaIII(configuration)
+    alg = Cso(configuration)
     # alg = Hgasso(configuration)
-    print("GaSchedule Version 1.2.3 . Making a Class Schedule Using", alg, ".\n")
+    print("GaSchedule Version 1.2.4 . Making a Class Schedule Using", alg, ".\n")
     print("Copyright (C) 2022 - 2023 Miller Cy Chan.\n")
     alg.run()
     html_result = HtmlOutput.getResult(alg.result)

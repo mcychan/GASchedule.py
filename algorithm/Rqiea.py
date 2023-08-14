@@ -20,7 +20,7 @@ class Rqiea(NsgaIII):
         super().__init__(configuration, numberOfCrossoverPoints, mutationSize, crossoverProbability,
                         mutationProbability)
 
-        self._currentGeneration, self._max_iterations = 0, 5000
+        self._currentGeneration = 0
 
         # quantum population
         self._Q = []
