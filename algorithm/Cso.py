@@ -94,10 +94,7 @@ class Cso(NsgaIII):
             chromosome.updatePositions(self._current_position[i])
             population[i] = chromosome
 
-        result = super().replacement(population)
-        result[0].extractPositions(self._current_position[0])
-        self._sBestScore = self._current_position[0, :]
-        return result
+        return super().replacement(population)
 
 
     # Starts and executes algorithm
@@ -147,6 +144,9 @@ class Cso(NsgaIII):
             # replacement
             pop[next] = self.replacement(pop[cur])
             self._best = pop[next][0] if pop[next][0].dominates(pop[cur][0]) else pop[cur][0]
+
+            self._best.extractPositions(self._current_position[0])
+            self._sBestScore = self._current_position[0, :]
 
             cur, next = next, cur
             currentGeneration += 1
