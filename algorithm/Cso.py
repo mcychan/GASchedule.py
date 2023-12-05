@@ -25,7 +25,6 @@ class Cso(NsgaIII):
         den = math.gamma((1 + self._beta) / 2) * self._beta * (2 ** ((self._beta - 1) / 2))
         self._σu, self._σv = (num / den) ** (1 / self._beta), 1
 
-        self._sBestScore = []
         self._current_position = [[]]
 
 
@@ -40,7 +39,6 @@ class Cso(NsgaIII):
             if i < 1:
                 self._chromlen = len(positions)
                 self._current_position = np.zeros((populationSize, self._chromlen), dtype=float)
-                self._sBestScore = np.zeros(self._chromlen, dtype=float)
 
 
     def optimum(self, localVal, chromosome):
@@ -61,14 +59,15 @@ class Cso(NsgaIII):
         populationSize = self._populationSize
         u, v = np.random.normal(0, self._σu, self._chromlen), np.random.normal(0, self._σv, self._chromlen)
         S = u / (abs(v) ** (1 / self._beta))
+        sBestScore = np.zeros(self._chromlen, dtype=float)
 
         for i in range(populationSize):
             if i == 0:
-                population[i].extractPositions(self._sBestScore)
+                population[i].extractPositions(sBestScore)
             else:
-                self._sBestScore = self.optimum(self._sBestScore, population[i])
+                sBestScore = self.optimum(sBestScore, population[i])
 
-            self._current_position[i] += np.random.randn(self._chromlen) * 0.01 * S * (current_position[i] - self._sBestScore)
+            self._current_position[i] += np.random.randn(self._chromlen) * 0.01 * S * (current_position[i] - sBestScore)
             self._current_position[i] = self.optimum(self._current_position[i], population[i])
 
 
@@ -94,10 +93,7 @@ class Cso(NsgaIII):
             chromosome.updatePositions(self._current_position[i])
             population[i] = chromosome
 
-        result = super().replacement(population)
-        result[0].extractPositions(self._current_position[0])
-        self._sBestScore = self._current_position[0, :]
-        return result
+        return super().replacement(population)
 
 
     # Starts and executes algorithm
