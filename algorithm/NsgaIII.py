@@ -1,4 +1,3 @@
-from model.Criteria import Criteria
 from model.Schedule import Schedule
 import numpy as np
 import random
@@ -35,7 +34,7 @@ class NsgaIII:
         self._mutationProbability = mutationProbability
 
         self._objDivision = []
-        if len(Criteria.weights) < 8:
+        if len(self._prototype.objectives) < 8:
             self._objDivision.append(6)
         else:
             self._objDivision.append(3)
@@ -364,7 +363,7 @@ class NsgaIII:
 
     def replacement(self, population):
         rps = []
-        self.ReferencePoint.generateReferencePoints(rps, len(Criteria.weights), self._objDivision)
+        self.ReferencePoint.generateReferencePoints(rps, len(population[0].objectives), self._objDivision)
         return self.selection(population, rps)
 
     # Starts and executes algorithm

@@ -9,9 +9,12 @@ class HtmlOutput:
     COLOR1 = "#319378"
     COLOR2 = "#CE0000"
     CRITERIAS = ('R', 'S', 'L', 'P', 'G')
-    CRITERIAS_DESCR = ("Current room has {any}overlapping", "Current room has {any}enough seats",
-                       "Current room with {any}enough computers if they are required",
-                       "Professors have {any}overlapping classes", "Student groups has {any}overlapping classes")
+    OK_DESCR = ("Current room has no overlapping", "Current room has enough seats",
+                       "Current room with enough computers if they are required",
+                       "Professors have no overlapping classes", "Student groups has no overlapping classes")
+    FAIL_DESCR = ("Current room has overlapping", "Current room has not enough seats",
+                       "Current room with not enough computers if they are required",
+                       "Professors have overlapping classes", "Student groups has overlapping classes")
     PERIODS = (
         "", "9 - 10", "10 - 11", "11 - 12", "12 - 13", "13 - 14", "14 - 15", "15 - 16", "16 - 17", "17 - 18", "18 - 19",
         "19 - 20", "20 - 21")
@@ -23,7 +26,6 @@ class HtmlOutput:
         COLOR2 = HtmlOutput.COLOR2
         CRITERIAS = HtmlOutput.CRITERIAS
         length_CRITERIAS = len(CRITERIAS)
-        CRITERIAS_DESCR = HtmlOutput.CRITERIAS_DESCR
 
         sb = [cc.Course.Name, "<br />", cc.Professor.Name, "<br />", "/".join(map(lambda grp: grp.Name, cc.Groups)),
                   "<br />"]
@@ -35,11 +37,11 @@ class HtmlOutput:
             if criterias[ci + i]:
                 sb.append(COLOR1)
                 sb.append("' title='")
-                sb.append(CRITERIAS_DESCR[i].format(any="" if (i == 1 or i == 2) else "no "))
+                sb.append(HtmlOutput.OK_DESCR[i])
             else:
                 sb.append(COLOR2)
                 sb.append("' title='")
-                sb.append(CRITERIAS_DESCR[i].format(any="not " if (i == 1 or i == 2) else ""))
+                sb.append(HtmlOutput.FAIL_DESCR[i])
             sb.append("'> ")
             sb.append(CRITERIAS[i])
             sb.append(" </span>")
