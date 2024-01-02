@@ -13,7 +13,7 @@ from time import time
 
 # Real observation QIEA (rQIEA)
 class Rqiea(NsgaIII):
-    def __init__(self, configuration, numberOfCrossoverPoints=2, mutationSize=2, crossoverProbability=80,
+    def __init__(self, configuration, numberOfCrossoverPoints=2, mutationSize=2, crossoverProbability=50,
                  mutationProbability=3, maxIterations=5000):
         self._max_iterations = maxIterations
         self._maxRepeat = min(15, self._max_iterations // 2)
@@ -82,14 +82,15 @@ class Rqiea(NsgaIII):
                 self._P[pij] += self._bounds[j][0]
 
             start = i * self._chromlen
-            positions = self._P[start: start + self._chromlen + 1]
             if population[i].fitness <= 0 or random.randrange(100) <= self._catastrophe:
+                positions = self._P[start: start + self._chromlen]
                 chromosome = self._prototype.makeEmptyFromPrototype()
                 chromosome.updatePositions(positions)
                 population[i] = chromosome
             else:
+                positions = np.zeros(self._chromlen, dtype=float)
                 population[i].extractPositions(positions)
-                self._P[start: start + self._chromlen + 1] = positions
+                self._P[start: start + self._chromlen] = positions
 
 
     def storebest(self, population):
@@ -147,12 +148,12 @@ class Rqiea(NsgaIII):
 
 
     def update(self):
-        for i in range(self._populationSize):
+        for i in range(1, self._populationSize, 2):
             for j in range(self._chromlen):
                 qij = 2 * (i * self._chromlen + j)
                 qprim = np.zeros(2, dtype=float)
 
-                k = math.pi / (100 + self._currentGeneration % 100)
+                k = math.pi / (100 + self._bestNotEnhance % 100)
                 theta = k * Rqiea.lut(self._Q[qij], self._Q[qij + 1], self._bestq[j][0], self._bestq[j][1])
 
                 qprim[0] = self._Q[qij] * math.cos(theta) + self._Q[qij + 1] * (-math.sin(theta))
@@ -172,13 +173,22 @@ class Rqiea(NsgaIII):
 
         q1, q2 = i * self._chromlen * 2, j * self._chromlen * 2
 
-        buf = self._Q[q1: q1 + 2 * self._chromlen + 1]
+        buf = self._Q[q1: q1 + 2 * self._chromlen]
 
-        self._Q[q1 + h1 * 2: q1 + h1 * 2 + (h2 - h1) * 2 + 1] = self._Q[q2 + h1: q2 + h1 + (h2 - h1) * 2 + 1]
-        self._Q[q2 + h1 * 2: q2 + h1 * 2 + (h2 - h1) * 2 + 1] = buf[h1: h1 + (h2 - h1) * 2 + 1]
+        self._Q[q1 + h1 * 2: q1 + h1 * 2 + (h2 - h1) * 2] = self._Q[q2 + h1: q2 + h1 + (h2 - h1) * 2]
+        self._Q[q2 + h1 * 2: q2 + h1 * 2 + (h2 - h1) * 2] = buf[h1: h1 + (h2 - h1) * 2]
 
         for k in range(h1, h2):
             self._Q[q1 + k * 2], self._Q[q2 + k * 2] = self._Q[q2 + k * 2], self._Q[q1 + k * 2]
+
+
+    def reform(self):
+        random.seed(round(time() * 1000))
+        np.random.seed(int(time()))
+        if self._crossoverProbability < 55:
+            self._crossoverProbability += 0.5
+        elif self._mutationProbability < 20:
+            self._mutationProbability += 0.5
 
 
     # Starts and executes algorithm
