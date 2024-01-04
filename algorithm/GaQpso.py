@@ -79,8 +79,7 @@ class GaQpso(NsgaIII):
                 self._pBestPosition[i] = self._current_position[i][:]
             self._gBest = self.optimum(self._gBest, population[i])
 
-            for j in range(self._chromlen):
-                mBest[j] += self._pBestPosition[i, j] / populationSize
+            mBest += self._pBestPosition[i] / populationSize
 
         alpha = self._alpha0 + (self._max_iterations - self._currentGeneration) * (self._alpha1 - self._alpha0) / self._max_iterations
         for i in range(populationSize):

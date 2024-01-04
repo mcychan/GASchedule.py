@@ -10,7 +10,7 @@ from model.Configuration import Configuration
 # from algorithm.GeneticAlgorithm import GeneticAlgorithm
 # from algorithm.APNsgaIII import APNsgaIII
 from algorithm.Cso import Cso
-# from algorithm.Ngra import Ngra
+# from algorithm.GaQpso import GaQpso
 # from algorithm.Amga2 import Amga2
 from HtmlOutput import HtmlOutput
 
@@ -23,9 +23,9 @@ def main(file_name):
     configuration.parseFile(target_file)
 
     alg = Cso(configuration)
-    # alg = Hgasso(configuration)
-    print("GaSchedule Version 1.2.4 . Making a Class Schedule Using", alg, ".\n")
-    print("Copyright (C) 2022 - 2023 Miller Cy Chan.\n")
+    # alg = GaQpso(configuration)
+    print("GaSchedule Version 1.2.5 . Making a Class Schedule Using", alg, ".\n")
+    print("Copyright (C) 2022 - 2024 Miller Cy Chan.\n")
     alg.run()
     html_result = HtmlOutput.getResult(alg.result)
 
