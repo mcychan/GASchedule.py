@@ -87,7 +87,7 @@ class GaQpso(NsgaIII):
                 phi, u = np.random.rand(2)
                 p = phi * self._pBestPosition[i, j] + (1 - phi) * self._gBest[j]
                 n_p = GaQpso.gaussian(p, mBest[j], mBest[j] - self._pBestPosition[i, j])
-                NP = n_p if randrange(100) < self._mutationProbability else p
+                NP = p if randrange(100) < self._mutationProbability else n_p
 
                 if np.random.rand() > .5:
                     self._current_position[i, j] += NP + alpha * abs(mBest[j] - current_position[i, j]) * math.log(1.0 / u)
