@@ -79,20 +79,21 @@ class GaQpso(NsgaIII):
                 self._pBestPosition[i] = self._current_position[i][:]
             self._gBest = self.optimum(self._gBest, population[i])
 
-            mBest += self._pBestPosition[i] / populationSize
+            for j in range(self._chromlen):
+                mBest[j] += self._pBestPosition[i, j] / populationSize
 
         alpha = self._alpha0 + (self._max_iterations - self._currentGeneration) * (self._alpha1 - self._alpha0) / self._max_iterations
         for i in range(populationSize):
             for j in range(self._chromlen):
                 phi, u = np.random.rand(2)
-                p = phi * self._pBestPosition[i][j] + (1 - phi) * self._gBest[j]
-                n_p = GaQpso.gaussian(p, mBest[j], mBest[j] - self._pBestPosition[i][j])
+                p = phi * self._pBestPosition[i, j] + (1 - phi) * self._gBest[j]
+                n_p = GaQpso.gaussian(p, mBest[j], mBest[j] - self._pBestPosition[i, j])
                 NP = n_p if randrange(100) < self._mutationProbability else p
 
                 if np.random.rand() > .5:
-                    self._current_position[i][j] += NP + alpha * abs(mBest[j] - current_position[i][j]) * math.log(1.0 / u)
+                    self._current_position[i, j] += NP + alpha * abs(mBest[j] - current_position[i, j]) * math.log(1.0 / u)
                 else:
-                    self._current_position[i][j] += NP - alpha * abs(mBest[j] - current_position[i][j]) * math.log(1.0 / u)
+                    self._current_position[i, j] += NP - alpha * abs(mBest[j] - current_position[i, j]) * math.log(1.0 / u)
 
             self._current_position[i] = self.optimum(self._current_position[i], population[i])
 
