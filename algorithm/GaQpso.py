@@ -58,12 +58,8 @@ class GaQpso(NsgaIII):
 
 
     @staticmethod
-    def gaussian(x, mu, sigma):
-        def N(x):
-            return math.exp(-x * x / 2) / math.sqrt(2 * math.pi)
-        if sigma == 0:
-            return N(x)
-        return N((x - mu) / sigma) / sigma
+    def gaussian(x, sigma):
+        return np.random.normal(x, sigma)
 
 
     def updatePosition(self, population):
@@ -86,7 +82,7 @@ class GaQpso(NsgaIII):
             for j in range(self._chromlen):
                 phi, u = np.random.rand(2)
                 p = phi * self._pBestPosition[i, j] + (1 - phi) * self._gBest[j]
-                n_p = GaQpso.gaussian(p, mBest[j], mBest[j] - self._pBestPosition[i, j])
+                n_p = GaQpso.gaussian(p, mBest[j] - self._pBestPosition[i, j])
                 NP = p if randrange(100) < self._mutationProbability else n_p
 
                 if np.random.rand() > .5:
