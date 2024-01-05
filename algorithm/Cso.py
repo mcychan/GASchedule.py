@@ -25,6 +25,7 @@ class Cso(NsgaIII):
         den = math.gamma((1 + self._beta) / 2) * self._beta * (2 ** ((self._beta - 1) / 2))
         self._σu, self._σv = (num / den) ** (1 / self._beta), 1
 
+        self._gBestScore = None
         self._current_position = [[]]
 
 
@@ -59,15 +60,15 @@ class Cso(NsgaIII):
         populationSize = self._populationSize
         u, v = np.random.normal(0, self._σu, self._chromlen), np.random.normal(0, self._σv, self._chromlen)
         S = u / (abs(v) ** (1 / self._beta))
-        sBestScore = np.zeros(self._chromlen, dtype=float)
 
         for i in range(populationSize):
-            if i == 0:
-                population[i].extractPositions(sBestScore)
+            if self._gBestScore is None:
+                self._gBestScore = np.zeros(self._chromlen, dtype=float)
+                population[i].extractPositions(self._gBestScore)
             else:
-                sBestScore = self.optimum(sBestScore, population[i])
+                self._gBestScore = self.optimum(self._gBestScore, population[i])
 
-            self._current_position[i] += np.random.randn(self._chromlen) * 0.01 * S * (current_position[i] - sBestScore)
+            self._current_position[i] += np.random.randn(self._chromlen) * 0.01 * S * (current_position[i] - self._gBestScore)
             self._current_position[i] = self.optimum(self._current_position[i], population[i])
 
 
