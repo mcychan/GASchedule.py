@@ -8,7 +8,7 @@ from time import time
 # X. -S. Yang and Suash Deb, "Cuckoo Search via Lévy flights,"
 # 2009 World Congress on Nature & Biologically Inspired Computing (NaBIC), Coimbatore, India,
 # 2009, pp. 210-214, doi: 10.1109/NABIC.2009.5393690.
-# Copyright (c) 2023 Miller Cy Chan
+# Copyright (c) 2023 - 2024 Miller Cy Chan
 
 
 # Cuckoo Search Optimization (CSO)
@@ -58,8 +58,8 @@ class Cso(NsgaIII):
     def updatePosition1(self, population):
         current_position = self._current_position[:]
         populationSize = self._populationSize
-        u, v = np.random.normal(0, self._σu, self._chromlen), np.random.normal(0, self._σv, self._chromlen)
-        S = u / (abs(v) ** (1 / self._beta))
+        u, v = np.random.normal(0, self._σu, populationSize), np.random.normal(0, self._σv, populationSize)
+        S = u / (np.abs(v) ** (1 / self._beta))
 
         for i in range(populationSize):
             if self._gBestScore is None:
@@ -68,7 +68,7 @@ class Cso(NsgaIII):
             else:
                 self._gBestScore = self.optimum(self._gBestScore, population[i])
 
-            self._current_position[i] += np.random.randn(self._chromlen) * 0.01 * S * (current_position[i] - self._gBestScore)
+            self._current_position[i] += np.random.normal(self._chromlen) * 0.01 * S[i] * (current_position[i] - self._gBestScore)
             self._current_position[i] = self.optimum(self._current_position[i], population[i])
 
 
