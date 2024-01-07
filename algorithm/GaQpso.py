@@ -59,7 +59,7 @@ class GaQpso(NsgaIII):
 
     @staticmethod
     def gaussian(x, sigma):
-        return np.random.normal(x, abs(sigma))
+        return np.random.randn() * sigma + x
 
 
     def updatePosition(self, population):
