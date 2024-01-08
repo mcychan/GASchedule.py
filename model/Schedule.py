@@ -40,9 +40,13 @@ class Schedule:
 
             # copy flags of class requirements
             self._criteria = c.criteria[:]
+            self._objectives = c.objectives[:]
 
             # copy fitness
             self._fitness = c.fitness
+
+            if c.convertedObjectives is not None:
+                self._convertedObjectives = c.convertedObjectives[:]
             return self
 
         return Schedule(c.configuration)
