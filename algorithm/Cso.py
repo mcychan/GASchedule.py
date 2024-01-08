@@ -56,7 +56,7 @@ class Cso(NsgaIII):
 
 
     def updatePosition1(self, population):
-        current_position = self._current_position[:]
+        current_position = np.copy(self._current_position)
         populationSize = self._populationSize
         u, v = np.random.randn(populationSize) * self._σu, np.random.randn(populationSize) * self._σv
         S = u / (np.abs(v) ** (1 / self._beta))

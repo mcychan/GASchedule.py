@@ -64,7 +64,7 @@ class GaQpso(NsgaIII):
 
     def updatePosition(self, population):
         mBest = np.zeros(self._chromlen, dtype=float)
-        current_position = self._current_position[:]
+        current_position = np.copy(self._current_position)
         populationSize = self._populationSize
 
         for i in range(populationSize):
