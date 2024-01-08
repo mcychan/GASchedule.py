@@ -102,7 +102,7 @@ class NsgaIII:
                 center = 1.0 / M
                 for insideRp in insideRps:
                     for j, pos in enumerate(insideRp.position):
-                        pos = center + pos / 2
+                        insideRp.position[j] = center + pos / 2
 
                     rps.append(insideRp)
 
