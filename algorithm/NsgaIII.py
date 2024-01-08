@@ -167,7 +167,7 @@ class NsgaIII:
         maxPoint = np.full(numObj, -sys.float_info.max)
         for chromosome in pop:
             for f, point in enumerate(maxPoint):
-                point = max(point, chromosome.objectives[f])
+                maxPoint[f] = max(point, chromosome.objectives[f])
 
         return maxPoint
 
