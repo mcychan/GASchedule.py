@@ -70,24 +70,21 @@ class GeneticAlgorithm:
             return
 
         # find place for new chromosome
-        j = self._currentBestSize
-        for i in range(j, -1, -1):
-            j = i
-            pos = bestChromosomes[i - 1]
-            # group is not full?
-            if i < length_best:
-                # position of new chromosomes is found?
-                if chromosomes[pos].fitness > chromosomes[chromosomeIndex].fitness:
-                    break
+        current_index = self._currentBestSize - 1
+        current_position = bestChromosomes[current_index]
+        while chromosomes[current_position].fitness < chromosomes[current_index].fitness and current_index >= 0:
 
-                # move chromosomes to make room for new
-                bestChromosomes[i] = pos
+            # if current_index is not the last index, push the current_chromosome 1 step to the right, 
+            # else remove it from bestChromosome group
+            if (current_index + 1) < self._currentBestSize:
+                bestChromosomes[current_index + 1] = bestChromosomes[current_index]
             else:
-                # group is full remove worst chromosomes in the group
-                bestFlags[pos] = False
+                bestFlags[current_position] = False
 
-        # store chromosome in best chromosome group
-        bestChromosomes[j] = chromosomeIndex
+            current_index -= 1
+            current_position = bestChromosomes[current_index]
+
+        bestChromosomes[current_index + 1] = chromosomeIndex
         bestFlags[chromosomeIndex] = True
 
         # increase current size if it has not reached the limit yet
