@@ -70,9 +70,8 @@ class GeneticAlgorithm:
             return
 
         # find place for new chromosome
-        j = self._currentBestSize
-        for i in range(j, -1, -1):
-            j = i
+        i = self._currentBestSize
+        while i > 0:
             pos = bestChromosomes[i - 1]
             # group is not full?
             if i < length_best:
@@ -85,9 +84,10 @@ class GeneticAlgorithm:
             else:
                 # group is full remove worst chromosomes in the group
                 bestFlags[pos] = False
+            i -= 1
 
         # store chromosome in best chromosome group
-        bestChromosomes[j] = chromosomeIndex
+        bestChromosomes[i] = chromosomeIndex
         bestFlags[chromosomeIndex] = True
 
         # increase current size if it has not reached the limit yet
