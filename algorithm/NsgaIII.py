@@ -1,4 +1,5 @@
 from model.Schedule import Schedule
+from multiprocessing import Process, cpu_count
 import numpy as np
 import random
 import sys
@@ -7,7 +8,7 @@ from time import time
 
 # Deb K , Jain H . An Evolutionary Many-Objective Optimization Algorithm Using Reference Point-Based Nondominated Sorting Approach,
 # Part I: Solving Problems With Box Constraints[J]. IEEE Transactions on Evolutionary Computation, 2014, 18(4):577-601.
-# Copyright (c) 2023 Miller Cy Chan
+# Copyright (c) 2023 - 2024 Miller Cy Chan
 
 
 # NSGA III
@@ -349,8 +350,10 @@ class NsgaIII:
 
     # initialize new population with chromosomes randomly built using prototype
     def initialize(self):
-        range1 = range(self._populationSize)
-        return [i for i in map(self.makeNew, range1)]
+        result = []
+        with Pool(cpu_count() - 1) as pool:
+            result = pool.map(self.makeNew, range(self._populationSize))
+        return result
 
 
     def reform(self):
