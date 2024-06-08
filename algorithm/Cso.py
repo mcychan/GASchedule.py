@@ -20,6 +20,10 @@ class Cso(NsgaIII):
         super().__init__(configuration, numberOfCrossoverPoints, mutationSize, crossoverProbability,
                         mutationProbability)
 
+        # there should be at least 5 chromosomes in population
+        if self._populationSize < 5:
+            self._populationSize = 5
+
         self._chromlen, self._pa, self._beta = 0, .25, 1.5
         num = math.gamma(1 + self._beta) * math.sin(math.pi * self._beta / 2)
         den = math.gamma((1 + self._beta) / 2) * self._beta * (2 ** ((self._beta - 1) / 2))
@@ -136,8 +140,7 @@ class Cso(NsgaIII):
             offspring = self.crossing(pop[cur])
 
             # mutation
-            for child in offspring:
-                child.mutation(mutationSize, mutationProbability)
+            [i for i in map(self.mutation, offspring)]
 
             pop[cur].extend(offspring)
 

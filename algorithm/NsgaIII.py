@@ -1,5 +1,4 @@
 from model.Schedule import Schedule
-from multiprocessing import Pool, cpu_count
 import numpy as np
 import random
 import sys
@@ -351,9 +350,7 @@ class NsgaIII:
 
     # initialize new population with chromosomes randomly built using prototype
     def initialize(self):
-        result = []
-        with Pool(cpu_count() - 1) as pool:
-            result = pool.map(self.makeNew, range(self._populationSize))
+        result = [i for i in map(self.makeNew, range(self._populationSize))]
         return result
 
 
@@ -410,8 +407,7 @@ class NsgaIII:
             offspring = self.crossing(pop[cur])
 
             # mutation
-            with Pool(cpu_count() - 1) as pool:
-                pool.map(self.mutation, offspring)
+            [i for i in map(self.mutation, offspring)]
 
             pop[cur].extend(offspring)
 
