@@ -1,5 +1,5 @@
 from model.Schedule import Schedule
-from multiprocessing import Process, cpu_count
+from multiprocessing import Pool, cpu_count
 import numpy as np
 import random
 import sys
@@ -329,6 +329,7 @@ class NsgaIII:
 
         return next
 
+
     def crossing(self, population):
         populationSize = self._populationSize
         crossoverProbability, numberOfCrossoverPoints = self._crossoverProbability, self._numberOfCrossoverPoints
@@ -356,6 +357,9 @@ class NsgaIII:
         return result
 
 
+    def mutation(self, chromosome):
+        return chromosome.mutation(self._mutationSize, self._mutationProbability)
+
     def reform(self):
         random.seed(round(time() * 1000))
         np.random.seed(int(time()))
@@ -371,7 +375,6 @@ class NsgaIII:
 
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
-        mutationSize, mutationProbability = self._mutationSize, self._mutationProbability
         population = self.initialize()
         random.seed(round(time() * 1000))
         np.random.seed(int(time()))
@@ -407,8 +410,8 @@ class NsgaIII:
             offspring = self.crossing(pop[cur])
 
             # mutation
-            for child in offspring:
-                child.mutation(mutationSize, mutationProbability)
+            with Pool(cpu_count() - 1) as pool:
+                pool.map(self.mutation, offspring)
 
             pop[cur].extend(offspring)
 
