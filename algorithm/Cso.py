@@ -81,11 +81,24 @@ class Cso(NsgaIII):
         populationSize = self._populationSize
         for i in range(populationSize):
             d1, d2 = np.random.randint(0, 5, 2)
+            changed = False
             for j in range(self._chromlen):
                 r = np.random.rand()
                 if r < self._pa:
+                    changed = True
                     self._current_position[i, j] += random.random() * (current_position[d1, j] - current_position[d2, j])
-            self._current_position[i] = self.optimum(self._current_position[i], population[i])
+
+            if changed:
+                self._current_position[i] = self.optimum(self._current_position[i], population[i])
+
+
+    def reform(self):
+        random.seed(round(time() * 1000))
+        np.random.seed(int(time()))
+        if self._crossoverProbability < 95:
+            self._crossoverProbability += 1.0
+        elif self._pa < .5:
+            self._pa += .01
 
 
     def replacement(self, population):
