@@ -24,7 +24,7 @@ def main(file_name):
 
     alg = Cso(configuration)
     # alg = GaQpso(configuration)
-    print("GaSchedule Version 1.2.5 . Making a Class Schedule Using", alg, ".\n")
+    print("GaSchedule Version 1.2.6 . Making a Class Schedule Using", alg, ".\n")
     print("Copyright (C) 2022 - 2024 Miller Cy Chan.\n")
     alg.run()
     html_result = HtmlOutput.getResult(alg.result)
