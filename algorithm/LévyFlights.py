@@ -24,19 +24,25 @@ class LévyFlights:
         return positions
 
 
-    def updateVelocities(self, population, populationSize, currentPosition, gBest):
-        current_position = np.copy(currentPosition)
-        u, v = np.random.randn(populationSize) * self._σu, np.random.randn(populationSize) * self._σv
+    def updatePosition(self, chromosome, currentPosition, i, gBest):
+        curPos = np.copy(currentPosition[i])
+        u, v = np.random.randn() * self._σu, np.random.randn() * self._σv
         S = u / (np.abs(v) ** (1 / self._beta))
 
-        for i in range(populationSize):
-            if gBest is None:
-                gBest = np.zeros(self._chromlen, dtype=float)
-                population[i].extractPositions(gBest)
-            else:
-                gBest = self.optimum(gBest, population[i])
+        if gBest is None:
+            gBest = np.zeros(self._chromlen, dtype=float)
+            chromosome.extractPositions(gBest)
+        else:
+            gBest = self.optimum(gBest, chromosome)
 
-            currentPosition[i] += np.random.normal(self._chromlen) * 0.01 * S[i] * (current_position[i] - gBest)
-            currentPosition[i] = self.optimum(currentPosition[i], population[i])
+        currentPosition[i] += np.random.normal(self._chromlen) * 0.01 * S * (curPos - gBest)
+        currentPosition[i] = self.optimum(currentPosition[i], chromosome)
+
+        return gBest
+
+
+    def updatePositions(self, population, populationSize, currentPosition, gBest):
+        for i in range(populationSize):
+           gBest = self.updatePosition(population[i], currentPosition, i, gBest)
 
         return gBest

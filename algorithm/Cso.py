@@ -73,7 +73,7 @@ class Cso(NsgaIII):
 
     def replacement(self, population):
         populationSize = self._populationSize
-        self._gBest = self._lf.updateVelocities(population, populationSize, self._current_position, self._gBest)
+        self._gBest = self._lf.updatePositions(population, populationSize, self._current_position, self._gBest)
         self.updateVelocities(population)
 
         for i in range(populationSize):

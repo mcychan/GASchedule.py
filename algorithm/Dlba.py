@@ -21,10 +21,10 @@ class Dlba(NsgaIII):
                         mutationProbability)
 
         self._chromlen, self._minValue, self._alpha, self._pa = 0, 0, .9, .25
-        self._frequency, self._loudness, self._rate = None, None, None
+        self._f1, self._f2, self._loudness, self._rate = None, None, None, None
 
         self._gBest = None
-        self._position, self._velocity = [[]], [[]]
+        self._position = [[]]
         self._maxValues, self._lf = None, None
 
 
@@ -41,64 +41,66 @@ class Dlba(NsgaIII):
             population[i] = prototype.makeNewFromPrototype(positions)
             if i < 1:
                 self._chromlen = len(positions)
-                self._frequency = np.zeros(self._chromlen, dtype=float)
+                self._f1 = np.zeros(self._chromlen, dtype=float)
+                self._f2 = np.zeros(self._chromlen, dtype=float)
                 self._rate = np.zeros(populationSize, dtype=float)
                 self._loudness = np.zeros(populationSize, dtype=float)
                 self._position = np.zeros((populationSize, self._chromlen), dtype=float)
-                self._velocity = np.zeros((populationSize, self._chromlen), dtype=float)
                 self._lf = LévyFlights(self._chromlen)
 
             self._rate[i] = random.random()
             self._loudness[i] = random.random() + 1
 
 
-    def updateVelocities(self, population):
+    def updatePositions(self, population):
         mean = np.mean(self._loudness)
         currentGeneration, prototype = self._currentGeneration, self._prototype
-        frequency, gBest = self._frequency, self._gBest
+        f1, f2, gBest = self._f1, self._f2, self._gBest
         maxValues, minValue = self._maxValues, self._minValue
-        position, rate = self._position, self._rate
-        loudness, velocity = self._loudness, self._velocity
+        position, rate, loudness = self._position, self._rate, self._loudness
 
-        globalBest = prototype.makeEmptyFromPrototype()
-        globalBest.updatePositions(self._gBest)
         localBest = prototype.makeNewFromPrototype()
+        if gBest is None:
+            gBest = position[0]
 
         populationSize = self._populationSize
         for i in range(populationSize):
             beta, rand = np.random.uniform(size=2)
-            n = np.random.uniform(low=-1, high=1)
+            𝛽1, 𝛽2 = np.random.uniform(low=-1, high=1, size=2)
+            r1, r2, r3, r4 = np.random.randint(0, populationSize, 4)
+            while r1 == r2:
+                r2 = np.random.randint(0, populationSize)
+            while r3 == r4:
+                r4 = np.random.randint(0, populationSize)
 
             for j in range(self._chromlen):
-                frequency[j] = ((maxValues[j] - minValue) * currentGeneration / n + minValue) * beta
-                velocity[i, j] += (position[i, j] - gBest[j]) * frequency[j]
+                f1[j] = ((minValue - maxValues[j]) * currentGeneration / 𝛽1 + maxValues[j]) * beta
+                f2[j] = ((maxValues[j] - minValue) * currentGeneration / 𝛽2 + minValue) * beta
+                position[i, j] = gBest[j] + f1[j] * (position[r1][j] - position[r2][j]) + f2[j] * (position[r3][j] - position[r3][j])
 
                 if rand > rate[i]:
-                    position[i, j] += velocity[i, j]
-                    if position[i, j] > maxValues[j]:
-                        position[i, j], velocity[i, j] = maxValues[j], minValue
-                    elif position[i, j] < minValue:
-                        position[i, j] = velocity[i, j] = minValue
+                    𝜀 = np.random.uniform(low=-1, high=1)
+                    position[i, j] += gBest[j] + 𝜀 * mean
 
-                localTemp = prototype.makeEmptyFromPrototype()
-                localTemp.updatePositions(position[i])
-                if localTemp.dominates(localBest):
-                    localBest = localTemp
+            gBest = self._lf.updatePosition(population[i], position, i, gBest)
 
+            localTemp = prototype.makeEmptyFromPrototype()
+            localTemp.updatePositions(position[i])
+            if localTemp.dominates(localBest):
+                localBest = localTemp
+
+        globalBest = prototype.makeEmptyFromPrototype()
+        globalBest.updatePositions(gBest)
+        mean = np.mean(rate)
         for i in range(populationSize):
             positionTemp = np.copy(position)
             if random.random() < loudness[i]:
-                n = np.random.uniform(low=-1, high=1)
+                𝜂 = np.random.uniform(low=-1, high=1)
                 for j in range(self._chromlen):
-                    positionTemp[i, j] = gBest[j] + n * mean
-                    if positionTemp[i, j] > maxValues[j]:
-                        positionTemp[i, j], velocity[i, j] = maxValues[j], minValue
-                    elif positionTemp[i, j] < minValue:
-                        positionTemp[i, j] = velocity[i, j] = minValue
+                    position[i, j] = gBest[j] + 𝜂 * mean
 
                 if globalBest.dominates(localBest):
-                    position[i] = positionTemp[i]
-                    rate[i] *= (_currentGeneration / n) ** 3
+                    rate[i] *= (_currentGeneration / 𝜂) ** 3
                     loudness[i] *= alpha
 
             position[i] = self._lf.optimum(position[i], population[i])
@@ -115,8 +117,7 @@ class Dlba(NsgaIII):
 
     def replacement(self, population):
         populationSize = self._populationSize
-        self._gBest = self._lf.updateVelocities(population, populationSize, self._position, self._gBest)
-        self.updateVelocities(population)
+        self.updatePositions(population)
 
         for i in range(populationSize):
             chromosome = self._prototype.makeEmptyFromPrototype()
