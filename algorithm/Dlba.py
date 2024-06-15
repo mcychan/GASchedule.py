@@ -21,7 +21,7 @@ class Dlba(NsgaIII):
                         mutationProbability)
 
         self._chromlen, self._minValue, self._alpha, self._pa = 0, 0, .9, .25
-        self._f1, self._f2, self._loudness, self._rate = None, None, None, None
+        self._loudness, self._rate = None, None
 
         self._gBest = None
         self._position = [[]]
@@ -41,8 +41,6 @@ class Dlba(NsgaIII):
             population[i] = prototype.makeNewFromPrototype(positions)
             if i < 1:
                 self._chromlen = len(positions)
-                self._f1 = np.zeros(self._chromlen, dtype=float)
-                self._f2 = np.zeros(self._chromlen, dtype=float)
                 self._rate = np.zeros(populationSize, dtype=float)
                 self._loudness = np.zeros(populationSize, dtype=float)
                 self._position = np.zeros((populationSize, self._chromlen), dtype=float)
@@ -55,8 +53,7 @@ class Dlba(NsgaIII):
     def updatePositions(self, population):
         mean = np.mean(self._loudness)
         currentGeneration, prototype = self._currentGeneration, self._prototype
-        f1, f2, gBest = self._f1, self._f2, self._gBest
-        maxValues, minValue = self._maxValues, self._minValue
+        gBest, maxValues, minValue = self._gBest, self._maxValues, self._minValue
         position, rate, loudness = self._position, self._rate, self._loudness
 
         localBest = prototype.makeNewFromPrototype()
@@ -74,9 +71,9 @@ class Dlba(NsgaIII):
                 r4 = np.random.randint(0, populationSize)
 
             for j in range(self._chromlen):
-                f1[j] = ((minValue - maxValues[j]) * currentGeneration / 𝛽1 + maxValues[j]) * beta
-                f2[j] = ((maxValues[j] - minValue) * currentGeneration / 𝛽2 + minValue) * beta
-                position[i, j] = gBest[j] + f1[j] * (position[r1][j] - position[r2][j]) + f2[j] * (position[r3][j] - position[r3][j])
+                f1 = ((minValue - maxValues[j]) * currentGeneration / 𝛽1 + maxValues[j]) * beta
+                f2 = ((maxValues[j] - minValue) * currentGeneration / 𝛽2 + minValue) * beta
+                position[i, j] = gBest[j] + f1 * (position[r1][j] - position[r2][j]) + f2 * (position[r3][j] - position[r3][j])
 
                 if rand > rate[i]:
                     𝜀 = np.random.uniform(low=-1, high=1)
