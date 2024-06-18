@@ -56,9 +56,10 @@ class Dlba(NsgaIII):
         gBest, maxValues, minValue = self._gBest, self._maxValues, self._minValue
         position, rate, loudness = self._position, self._rate, self._loudness
 
-        localBest = prototype.makeNewFromPrototype()
         if gBest is None:
             gBest = position[0]
+        prevBest = prototype.makeEmptyFromPrototype()
+        prevBest.updatePositions(gBest)
 
         populationSize = self._populationSize
         for i in range(populationSize):
@@ -81,10 +82,6 @@ class Dlba(NsgaIII):
 
             gBest = self._lf.updatePosition(population[i], position, i, gBest)
 
-            localTemp = prototype.makeEmptyFromPrototype()
-            localTemp.updatePositions(position[i])
-            if localTemp.dominates(localBest):
-                localBest = localTemp
 
         globalBest = prototype.makeEmptyFromPrototype()
         globalBest.updatePositions(gBest)
@@ -96,9 +93,9 @@ class Dlba(NsgaIII):
                 for j in range(self._chromlen):
                     position[i, j] = gBest[j] + 𝜂 * mean
 
-                if globalBest.dominates(localBest):
-                    rate[i] *= (_currentGeneration / 𝜂) ** 3
-                    loudness[i] *= alpha
+                if prevBest.dominates(globalBest):
+                    rate[i] *= (currentGeneration / 𝜂) ** 3
+                    loudness[i] *= self._alpha
 
             position[i] = self._lf.optimum(position[i], population[i])
 
