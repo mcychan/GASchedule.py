@@ -19,6 +19,10 @@ class Fpa(NsgaIII):
         super().__init__(configuration, numberOfCrossoverPoints, mutationSize, crossoverProbability,
                         mutationProbability)
 
+        # there should be at least 5 chromosomes in population
+        if self._populationSize < 5:
+            self._populationSize = 5
+
         self._chromlen, self._pa = 0, .25
 
         self._lf, self._gBest = None, None

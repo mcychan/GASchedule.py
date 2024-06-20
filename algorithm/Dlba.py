@@ -20,6 +20,10 @@ class Dlba(NsgaIII):
         super().__init__(configuration, numberOfCrossoverPoints, mutationSize, crossoverProbability,
                         mutationProbability)
 
+        # there should be at least 5 chromosomes in population
+        if self._populationSize < 5:
+            self._populationSize = 5
+
         self._chromlen, self._minValue, self._alpha, self._pa = 0, 0, .9, .25
         self._loudness, self._rate = None, None
 
