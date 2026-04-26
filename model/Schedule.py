@@ -3,7 +3,7 @@ from .CourseClass import CourseClass
 from .Reservation import Reservation
 from .Criteria import Criteria
 from collections import deque
-from random import randrange
+from numpy.random import randint as randrange
 
 import numpy as np
 

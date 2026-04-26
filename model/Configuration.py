@@ -1,4 +1,3 @@
-import codecs
 import json
 
 from .Professor import Professor
@@ -215,7 +214,7 @@ class Configuration:
         Room.restartIDs()
         CourseClass.restartIDs()
 
-        with codecs.open(fileName, "r", "utf-8") as f:
+        with open(fileName, "r", encoding="utf-8") as f:
             # read file into a string and deserialize JSON to a type
             data = json.load(f)
 

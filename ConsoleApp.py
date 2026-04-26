@@ -1,4 +1,3 @@
-import codecs
 import pathlib
 import os
 import sys
@@ -30,9 +29,8 @@ def main(file_name):
     html_result = HtmlOutput.getResult(alg.result)
 
     temp_file_path = tempfile.gettempdir() + file_name.replace(".json", ".htm")
-    writer = codecs.open(temp_file_path, "w", "utf-8")
-    writer.write(html_result)
-    writer.close()
+    with open(temp_file_path, "w", encoding="utf-8") as writer:
+        writer.write(html_result)
 
     seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
     print("\nCompleted in {} secs.\n".format(seconds))
