@@ -1,4 +1,5 @@
 from model.Schedule import Schedule
+import concurrent.futures
 import numpy as np
 import random
 import sys
@@ -350,7 +351,8 @@ class NsgaIII:
 
     # initialize new population with chromosomes randomly built using prototype
     def initialize(self):
-        result = [i for i in map(self.makeNew, range(self._populationSize))]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            result = [executor.map(self.makeNew, range(self._populationSize))]
         return result
 
 
@@ -407,7 +409,8 @@ class NsgaIII:
             offspring = self.crossing(pop[cur])
 
             # mutation
-            [i for i in map(self.mutation, offspring)]
+            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+                [executor.map(self.mutation, offspring)]
 
             pop[cur].extend(offspring)
 
