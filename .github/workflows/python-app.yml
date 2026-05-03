@@ -15,14 +15,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
     - name: Set up Python 3.14.4
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v6
       with:
         python-version: 3.14.4
     - name: Install dependencies
       run: |
-        py -m pip install --upgrade pip
+        python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with pytest
       run: |
