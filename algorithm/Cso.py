@@ -1,5 +1,6 @@
 from .LévyFlights import LévyFlights
 from .NsgaIII import NsgaIII
+import concurrent.futures
 import math
 import numpy as np
 import random
@@ -123,7 +124,9 @@ class Cso(NsgaIII):
             offspring = self.crossing(pop[cur])
 
             # mutation
-            [i for i in map(self.mutation, offspring)]
+            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+                for i in range(len(offspring)):
+                    executor.submit(self.mutation, offspring[i])
 
             pop[cur].extend(offspring)
 

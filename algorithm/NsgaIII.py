@@ -335,14 +335,18 @@ class NsgaIII:
         crossoverProbability, numberOfCrossoverPoints = self._crossoverProbability, self._numberOfCrossoverPoints
         offspring = []
 
-        for i in range(0, populationSize, 2):
+        def crossover(population):
             father = population[random.randrange(populationSize)]
             mother = population[random.randrange(populationSize)]
             child0 = father.crossover(mother, numberOfCrossoverPoints, crossoverProbability)
             child1 = mother.crossover(father, numberOfCrossoverPoints, crossoverProbability)
+            return (child0, child1)
 
-            # append child chromosome to offspring list
-            offspring.extend((child0, child1))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            futures = [executor.submit(crossover, population) for _ in range(0, populationSize, 2)]
+            for future in concurrent.futures.as_completed(futures):
+                # append child chromosome to offspring list
+                offspring.extend(future.result())
 
         return offspring
 
@@ -410,7 +414,8 @@ class NsgaIII:
 
             # mutation
             with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-                [executor.map(self.mutation, offspring)]
+                for i in range(len(offspring)):
+                    executor.submit(self.mutation, offspring[i])
 
             pop[cur].extend(offspring)
 
