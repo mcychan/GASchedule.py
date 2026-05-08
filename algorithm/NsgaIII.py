@@ -1,8 +1,8 @@
 from model.Schedule import Schedule
 import concurrent.futures
 import numpy as np
-import random
 import sys
+from numpy.random import randint as randrange
 from time import time
 
 
@@ -76,7 +76,7 @@ class NsgaIII:
                 return -1
 
             members = list(self._potentialMembers.keys())
-            return members[random.randrange(len(self._potentialMembers))]
+            return members[randrange(len(self._potentialMembers))]
 
         def removePotentialMember(self, memberInd):
             while memberInd in self._potentialMembers:
@@ -185,7 +185,7 @@ class NsgaIII:
                 min_rps.append(r)
 
         # return a random reference point (j-bar)
-        return min_rps[random.randrange(len(min_rps))]
+        return min_rps[randrange(len(min_rps))]
 
     def constructHyperplane(self, pop, extremePoints):
         numObj = len(pop[0].objectives)
@@ -336,8 +336,8 @@ class NsgaIII:
         offspring = []
 
         def crossover(population):
-            father = population[random.randrange(populationSize)]
-            mother = population[random.randrange(populationSize)]
+            father = population[randrange(populationSize)]
+            mother = population[randrange(populationSize)]
             child0 = father.crossover(mother, numberOfCrossoverPoints, crossoverProbability)
             child1 = mother.crossover(father, numberOfCrossoverPoints, crossoverProbability)
             return (child0, child1)
@@ -360,8 +360,13 @@ class NsgaIII:
         return result
 
 
-    def mutation(self, chromosome):
-        return chromosome.mutation(self._mutationSize, self._mutationProbability)
+    def mutation(self, population):
+        def mutate(chromosome):
+            return chromosome.mutation(self._mutationSize, self._mutationProbability)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+                for i in range(len(population)):
+                    executor.submit(mutate, population[i])
 
     def reform(self):
         random.seed(round(time() * 1000))
@@ -413,9 +418,7 @@ class NsgaIII:
             offspring = self.crossing(pop[cur])
 
             # mutation
-            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-                for i in range(len(offspring)):
-                    executor.submit(self.mutation, offspring[i])
+            self.mutation(offspring)
 
             pop[cur].extend(offspring)
 

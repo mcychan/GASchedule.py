@@ -79,6 +79,10 @@ class APNsgaIII(NsgaIII):
         result.sort(key = lambda chromosome: chromosome.fitness, reverse=True)
         return result
 
+    # initialize new population with chromosomes randomly built using prototype
+    def initialize(self):
+        result = [i for i in map(self.makeNew, range(self._populationSize))]
+        return result
 
     # Starts and executes algorithm
     def run(self, maxRepeat=9999, minFitness=0.999):
@@ -87,7 +91,7 @@ class APNsgaIII(NsgaIII):
         nMax = int(1.5 * populationSize)
 
         population = self.initialize()
-        random.seed(round(time() * 1000))
+
         np.random.seed(int(time()))
         pop = [population, None]
 
@@ -123,8 +127,7 @@ class APNsgaIII(NsgaIII):
             offspring = self.crossing(pop[cur])
 
             # mutation
-            for child in offspring:
-                child.mutation(mutationSize, mutationProbability)
+            self.mutation(offspring)
 
             pop[cur].extend(offspring)
 

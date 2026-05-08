@@ -121,7 +121,7 @@ class Fpa(NsgaIII):
             offspring = self.crossing(pop[cur])
 
             # mutation
-            [i for i in map(self.mutation, offspring)]
+            self.mutation(offspring)
 
             pop[cur].extend(offspring)
 

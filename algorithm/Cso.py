@@ -124,9 +124,7 @@ class Cso(NsgaIII):
             offspring = self.crossing(pop[cur])
 
             # mutation
-            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-                for i in range(len(offspring)):
-                    executor.submit(self.mutation, offspring[i])
+            self.mutation(offspring)
 
             pop[cur].extend(offspring)
 

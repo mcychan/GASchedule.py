@@ -144,8 +144,7 @@ class GaQpso(NsgaIII):
             offspring = self.crossing(pop[cur])
 
             # mutation
-            for child in offspring:
-                child.mutation(mutationSize, mutationProbability)
+            self.mutation(offspring)
 
             pop[cur].extend(offspring)
 
